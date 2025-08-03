@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI Voice Assistant</string>
+    <string name="voice_assistant_title">Voice Assistant</string>
+    <string name="voice_assistant_subtitle">Tap to start voice conversation</string>
+    <string name="listening">Listening...</string>
+    <string name="processing">Processing...</string>
+    <string name="speaking">Speaking...</string>
+    <string name="ready">Ready</string>
+    <string name="error_no_api_key">Please configure your OpenAI API key in settings</string>
+    <string name="error_network">Network error. Please check your connection</string>
+    <string name="error_speech_recognition">Speech recognition error</string>
+    <string name="error_permission_required">Microphone permission is required</string>
+    <string name="welcome_message">Voice assistant ready. Press play to start talking.</string>
+</resources>
