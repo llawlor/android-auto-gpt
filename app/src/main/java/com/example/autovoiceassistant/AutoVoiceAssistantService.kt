@@ -35,6 +35,11 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         mediaSession.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
                 Log.d(TAG, "onPlay - Providing voice command instructions")
+                updateMediaMetadata(
+                    "Voice Commands", 
+                    "How to use", 
+                    "Use your voice button and say: 'Search [your question] on Auto Voice Assistant'. For example: 'Search what's the weather like on Auto Voice Assistant'"
+                )
                 voiceManager.speak("Hello! I'm your AI assistant. Use your voice button and say: Search what's the weather like on Auto Voice Assistant. You can ask me anything using the Search pattern!")
                 updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
@@ -54,6 +59,11 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                 // Handle voice search from Android Auto
                 if (query.isNullOrBlank()) {
                     // No query provided, prompt user with proper command format
+                    updateMediaMetadata(
+                        "No Query Received", 
+                        "Try again", 
+                        "Please say 'Search [your question] on Auto Voice Assistant' to get started."
+                    )
                     voiceManager.speak("I didn't receive your question. Please say 'Search your question on Auto Voice Assistant' to get started.")
                 } else {
                     handleVoiceQuery(query)
@@ -73,14 +83,24 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         val apiKey = getApiKeyFromPreferences() // Implement this method
         openAIClient = OpenAIClient(apiKey)
         
-        // Initialize TTS
+        // Initialize TTS and set welcome screen
         serviceScope.launch {
             val ttsInitialized = voiceManager.initializeTextToSpeech()
             if (ttsInitialized) {
                 Log.d(TAG, "Text-to-Speech initialized successfully")
+                updateMediaMetadata(
+                    "AI Voice Assistant Ready", 
+                    "Press play to start", 
+                    "Say 'Search [your question] on Auto Voice Assistant' to get started. You can ask me anything!"
+                )
                 voiceManager.speak("Voice assistant ready. Press play to start talking.")
             } else {
                 Log.e(TAG, "Failed to initialize Text-to-Speech")
+                updateMediaMetadata(
+                    "Setup Error", 
+                    "TTS initialization failed", 
+                    "Text-to-Speech could not be initialized. Please restart the app."
+                )
             }
         }
         
@@ -109,20 +129,34 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     
     private fun updatePlaybackState(state: Int, statusText: String = "") {
         val playbackState = PlaybackState.Builder()
+            .setActions(
+                PlaybackState.ACTION_PLAY or
+                PlaybackState.ACTION_PAUSE or
+                PlaybackState.ACTION_STOP or
+                PlaybackState.ACTION_PLAY_FROM_SEARCH
+            )
             .setState(state, 0, 1.0f)
+            .setErrorMessage(if (state == PlaybackState.STATE_ERROR) statusText else null)
             .build()
+        
         mediaSession.setPlaybackState(playbackState)
         
-        // Update metadata to show current status
-        if (statusText.isNotEmpty()) {
-            val metadata = MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE, "AI Voice Assistant")
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, statusText)
-                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, "AI Voice Assistant")
-                .putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, statusText)
-                .build()
-            mediaSession.setMetadata(metadata)
-        }
+        Log.d(TAG, "Playback state updated: $state, status: $statusText")
+    }
+    
+    private fun updateMediaMetadata(title: String, subtitle: String = "", description: String = "") {
+        val metadata = MediaMetadata.Builder()
+            .putString(MediaMetadata.METADATA_KEY_TITLE, title)
+            .putString(MediaMetadata.METADATA_KEY_ARTIST, "AI Voice Assistant")
+            .putString(MediaMetadata.METADATA_KEY_ALBUM, subtitle)
+            .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title)
+            .putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, subtitle)
+            .putString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, description)
+            .putLong(MediaMetadata.METADATA_KEY_DURATION, -1) // Unknown duration
+            .build()
+        
+        mediaSession.setMetadata(metadata)
+        Log.d(TAG, "Media metadata updated: title='$title', subtitle='$subtitle'")
     }
     
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
@@ -198,9 +232,13 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         Log.d(TAG, "Handling voice query: $query")
         updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $query")
         
+        // Display the query being processed
+        updateMediaMetadata("Processing Query", "Thinking...", query)
+        
         // Validate query length and content
         if (query.isBlank()) {
             Log.w(TAG, "Empty query received")
+            updateMediaMetadata("Error", "No Query", "I didn't receive a question. Please try asking again.")
             updatePlaybackState(PlaybackState.STATE_ERROR, "No query provided")
             voiceManager.speak("I didn't receive a question. Please try asking again.")
             return
@@ -208,6 +246,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         
         if (query.length > 500) {
             Log.w(TAG, "Query too long: ${query.length} characters")
+            updateMediaMetadata("Error", "Query Too Long", "Your question is too long. Please try asking a shorter question.")
             updatePlaybackState(PlaybackState.STATE_ERROR, "Query too long")
             voiceManager.speak("Your question is too long. Please try asking a shorter question.")
             return
@@ -227,16 +266,26 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                     if (aiResponse.isBlank()) {
                         Log.w(TAG, "Received blank response from OpenAI")
                         updatePlaybackState(PlaybackState.STATE_ERROR, "Empty response received")
+                        updateMediaMetadata("Error", "Empty Response", "I received an empty response. Please try asking your question again.")
                         voiceManager.speak("I received an empty response. Please try asking your question again.")
                         return@onSuccess
                     }
                     
+                    // Display the response on screen
+                    val displayTitle = "AI Response"
+                    val displaySubtitle = "Query: ${query.take(50)}${if (query.length > 50) "..." else ""}"
+                    
                     if (aiResponse.length > 1000) {
                         Log.w(TAG, "Response is very long (${aiResponse.length} chars), truncating for TTS")
                         val truncatedResponse = aiResponse.take(800) + "... That's the main point."
+                        
+                        // Show full response on screen, speak truncated version
+                        updateMediaMetadata(displayTitle, displaySubtitle, aiResponse)
                         updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
                         voiceManager.speak(truncatedResponse)
                     } else {
+                        // Show response on screen and speak it
+                        updateMediaMetadata(displayTitle, displaySubtitle, aiResponse)
                         updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
                         voiceManager.speak(aiResponse)
                     }
@@ -269,11 +318,17 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                         }
                     }
                     
+                    // Display error on screen
+                    val errorTitle = "Error"
+                    val errorSubtitle = "Query: ${query.take(50)}${if (query.length > 50) "..." else ""}"
+                    updateMediaMetadata(errorTitle, errorSubtitle, userMessage)
                     updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $userMessage")
                     voiceManager.speak(userMessage)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Unexpected error processing voice query", e)
+                val errorSubtitle = "Query: ${query.take(50)}${if (query.length > 50) "..." else ""}"
+                updateMediaMetadata("Unexpected Error", errorSubtitle, "Sorry, there was an unexpected error. Please try again.")
                 updatePlaybackState(PlaybackState.STATE_ERROR, "Unexpected error")
                 voiceManager.speak("Sorry, there was an unexpected error. Please try again.")
             }
