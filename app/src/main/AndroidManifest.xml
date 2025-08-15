@@ -36,6 +36,21 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <!-- Google Assistant App Actions -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="autovoiceassistant" />
+            </intent-filter>
+            
+            <!-- Voice search integration -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- Settings Activity -->
@@ -63,5 +78,15 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
+            
+        <!-- Google Assistant App Actions -->
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/actions" />
+            
+        <!-- App shortcuts for Assistant -->
+        <meta-data
+            android:name="android.app.shortcuts"
+            android:resource="@xml/shortcuts" />
     </application>
 </manifest>

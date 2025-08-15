@@ -10,6 +10,7 @@ import android.service.media.MediaBrowserService
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 
 class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallback {
     
@@ -32,10 +33,8 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         mediaSession = MediaSession(this, TAG)
         mediaSession.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
-                Log.d(TAG, "onPlay - Prompting user to use voice search")
-                // In Android Auto, we can't directly start speech recognition
-                // Instead, prompt the user to use the voice search button
-                voiceManager.speak("Please use the voice search button on your steering wheel or Android Auto interface to talk to me")
+                Log.d(TAG, "onPlay - Providing Google Assistant integration instructions")
+                voiceManager.speak("Hello! I'm your AI assistant. Press your voice button and say: Hey Google, open Auto Voice Assistant and ask about the weather. Or say: Hey Google, talk to Auto Voice Assistant. I'll process your questions through Google Assistant!")
                 updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
             
@@ -238,6 +237,11 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Handle voice query from Google Assistant
+        intent?.getStringExtra("voice_query")?.let { query ->
+            Log.d(TAG, "Received voice query from Google Assistant: $query")
+            handleVoiceQuery(query)
+        }
         return START_STICKY
     }
 }

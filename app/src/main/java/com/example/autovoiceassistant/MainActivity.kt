@@ -3,7 +3,9 @@ package com.example.autovoiceassistant
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         
         setupUI()
         checkPermissions()
+        handleGoogleAssistantIntent()
     }
     
     private fun setupUI() {
@@ -54,6 +57,52 @@ class MainActivity : AppCompatActivity() {
                 RECORD_AUDIO_PERMISSION_CODE
             )
         }
+    }
+    
+    private fun handleGoogleAssistantIntent() {
+        val intent = intent
+        val action = intent.action
+        val data = intent.data
+        
+        Log.d("MainActivity", "Intent action: $action, data: $data")
+        
+        when (action) {
+            Intent.ACTION_VIEW -> {
+                // Handle deep link from Google Assistant
+                data?.let { uri ->
+                    if (uri.scheme == "autovoiceassistant") {
+                        val query = uri.getQueryParameter("query")
+                        Log.d("MainActivity", "Google Assistant query: $query")
+                        if (!query.isNullOrBlank()) {
+                            handleAssistantQuery(query)
+                        }
+                    }
+                }
+            }
+            Intent.ACTION_SEARCH, Intent.ACTION_VOICE_COMMAND -> {
+                // Handle voice search intent
+                val query = intent.getStringExtra("query") ?: intent.getStringExtra("android.intent.extra.TEXT")
+                Log.d("MainActivity", "Voice search query: $query")
+                if (!query.isNullOrBlank()) {
+                    handleAssistantQuery(query)
+                }
+            }
+        }
+    }
+    
+    private fun handleAssistantQuery(query: String) {
+        Log.d("MainActivity", "Processing Assistant query: $query")
+        
+        // Start the voice service to handle the query
+        val serviceIntent = Intent(this, AutoVoiceAssistantService::class.java)
+        serviceIntent.putExtra("voice_query", query)
+        startService(serviceIntent)
+        
+        // Show feedback to user
+        Toast.makeText(this, "Processing: $query", Toast.LENGTH_SHORT).show()
+        
+        // Optionally finish the activity to return to Android Auto
+        finish()
     }
     
     private fun testVoiceRecognition() {
