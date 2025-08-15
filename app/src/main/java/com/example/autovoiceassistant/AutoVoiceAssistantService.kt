@@ -1,6 +1,7 @@
 package com.example.autovoiceassistant
 
 import android.content.Intent
+import android.media.MediaDescription
 import android.media.browse.MediaBrowser
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
@@ -43,6 +44,14 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
             override fun onPause() {
                 Log.d(TAG, "onPause - Pausing voice recognition")
                 voiceManager.stopListening()
+            }
+            
+            override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+                Log.d(TAG, "onPlayFromSearch - Voice search query: $query")
+                // Handle voice search from Android Auto
+                query?.let {
+                    handleVoiceQuery(it)
+                }
             }
         })
         
@@ -112,7 +121,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         
         if (parentId == MEDIA_ROOT_ID) {
             val voiceCommandItem = MediaBrowser.MediaItem(
-                MediaBrowser.MediaItem.MediaDescription.Builder()
+                MediaDescription.Builder()
                     .setMediaId(VOICE_COMMAND_ID)
                     .setTitle("Voice Assistant")
                     .setSubtitle("Tap to start voice conversation")
@@ -184,6 +193,33 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     override fun onTTSFinished() {
         Log.d(TAG, "TTS finished")
         updatePlaybackState(PlaybackState.STATE_STOPPED)
+    }
+    
+    private fun handleVoiceQuery(query: String) {
+        Log.d(TAG, "Handling voice query: $query")
+        updatePlaybackState(PlaybackState.STATE_PLAYING)
+        
+        // Process the voice query with OpenAI
+        serviceScope.launch {
+            try {
+                val response = openAIClient.sendMessage(query)
+                response.onSuccess { aiResponse ->
+                    Log.d(TAG, "AI Response to query: $aiResponse")
+                    voiceManager.speak(aiResponse)
+                }.onFailure { error ->
+                    Log.e(TAG, "OpenAI API error for query", error)
+                    val errorMessage = when {
+                        error.message?.contains("API key") == true -> "Please set your OpenAI API key in settings"
+                        error.message?.contains("network") == true -> "Network error. Please check your connection"
+                        else -> "Sorry, I couldn't process your request right now"
+                    }
+                    voiceManager.speak(errorMessage)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error processing voice query", e)
+                voiceManager.speak("Sorry, there was an error processing your request")
+            }
+        }
     }
     
     override fun onDestroy() {

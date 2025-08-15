@@ -43,10 +43,11 @@ dependencies {
     
     // Android Auto dependencies
     implementation 'androidx.media:media:1.7.0'
-    implementation 'com.google.android.gms:play-services-car:1.0.0'
+    // Note: Android Auto integration uses androidx.car.app library
+    implementation 'androidx.car.app:app:1.4.0'
     
-    // Speech recognition and TTS
-    implementation 'androidx.speech:speech:1.0.0'
+    // Speech recognition and TTS (using built-in Android APIs)
+    // Note: Speech recognition and TTS are built into Android framework
     
     // HTTP client for OpenAI API
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
