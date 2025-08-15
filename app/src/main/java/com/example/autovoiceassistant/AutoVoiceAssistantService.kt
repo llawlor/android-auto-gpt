@@ -2,6 +2,7 @@ package com.example.autovoiceassistant
 
 import android.content.Intent
 import android.media.MediaDescription
+import android.media.MediaMetadata
 import android.media.browse.MediaBrowser
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
@@ -106,12 +107,22 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         updatePlaybackState(PlaybackState.STATE_STOPPED)
     }
     
-    private fun updatePlaybackState(state: Int) {
+    private fun updatePlaybackState(state: Int, statusText: String = "") {
         val playbackState = PlaybackState.Builder()
-            .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_STOP or PlaybackState.ACTION_PAUSE)
             .setState(state, 0, 1.0f)
             .build()
         mediaSession.setPlaybackState(playbackState)
+        
+        // Update metadata to show current status
+        if (statusText.isNotEmpty()) {
+            val metadata = MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_TITLE, "AI Voice Assistant")
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, statusText)
+                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, "AI Voice Assistant")
+                .putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, statusText)
+                .build()
+            mediaSession.setMetadata(metadata)
+        }
     }
     
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
@@ -145,12 +156,16 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     override fun onSpeechRecognized(text: String) {
         Log.d(TAG, "Speech recognized: $text")
         
+        // Show processing status
+        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $text")
+        
         // Process the recognized speech with OpenAI
         serviceScope.launch {
             try {
                 val response = openAIClient.sendMessage(text)
                 response.onSuccess { aiResponse ->
                     Log.d(TAG, "AI Response: $aiResponse")
+                    updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
                     voiceManager.speak(aiResponse)
                 }.onFailure { error ->
                     Log.e(TAG, "OpenAI API error", error)
@@ -159,10 +174,12 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                         error.message?.contains("network") == true -> "Network error. Please check your connection"
                         else -> "Sorry, I couldn't process your request right now"
                     }
+                    updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $errorMessage")
                     voiceManager.speak(errorMessage)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing speech", e)
+                updatePlaybackState(PlaybackState.STATE_ERROR, "Error processing request")
                 voiceManager.speak("Sorry, there was an error processing your request")
             }
         }
@@ -170,7 +187,6 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     
     override fun onSpeechError(error: String) {
         Log.e(TAG, "Speech error: $error")
-        updatePlaybackState(PlaybackState.STATE_ERROR)
         
         val userFriendlyMessage = when {
             error.contains("No speech input") -> "I didn't hear anything. Please try again."
@@ -179,32 +195,33 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
             else -> "Sorry, I couldn't understand. Please try again."
         }
         
+        updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $userFriendlyMessage")
         voiceManager.speak(userFriendlyMessage)
     }
     
     override fun onSpeechStarted() {
         Log.d(TAG, "Speech started")
-        updatePlaybackState(PlaybackState.STATE_PLAYING)
+        updatePlaybackState(PlaybackState.STATE_PLAYING, "Listening...")
     }
     
     override fun onSpeechFinished() {
         Log.d(TAG, "Speech finished")
-        // Keep in playing state while processing
+        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing your request...")
     }
     
     override fun onTTSStarted() {
         Log.d(TAG, "TTS started")
-        updatePlaybackState(PlaybackState.STATE_PLAYING)
+        updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
     }
     
     override fun onTTSFinished() {
         Log.d(TAG, "TTS finished")
-        updatePlaybackState(PlaybackState.STATE_STOPPED)
+        updatePlaybackState(PlaybackState.STATE_STOPPED, "Ready for next question")
     }
     
     private fun handleVoiceQuery(query: String) {
         Log.d(TAG, "Handling voice query: $query")
-        updatePlaybackState(PlaybackState.STATE_PLAYING)
+        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $query")
         
         // Process the voice query with OpenAI
         serviceScope.launch {
@@ -212,6 +229,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                 val response = openAIClient.sendMessage(query)
                 response.onSuccess { aiResponse ->
                     Log.d(TAG, "AI Response to query: $aiResponse")
+                    updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
                     voiceManager.speak(aiResponse)
                 }.onFailure { error ->
                     Log.e(TAG, "OpenAI API error for query", error)
@@ -220,10 +238,12 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                         error.message?.contains("network") == true -> "Network error. Please check your connection"
                         else -> "Sorry, I couldn't process your request right now"
                     }
+                    updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $errorMessage")
                     voiceManager.speak(errorMessage)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing voice query", e)
+                updatePlaybackState(PlaybackState.STATE_ERROR, "Error processing request")
                 voiceManager.speak("Sorry, there was an error processing your request")
             }
         }

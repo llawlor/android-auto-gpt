@@ -127,6 +127,19 @@ class MainActivity : AppCompatActivity() {
                     handleAssistantQuery(query)
                 }
             }
+            "android.media.action.MEDIA_PLAY_FROM_SEARCH" -> {
+                // Handle "Search [query] on [app name]" and "Play [query] on [app name]" commands
+                val query = intent.getStringExtra(android.app.SearchManager.QUERY) ?: 
+                           intent.getStringExtra("query") ?: 
+                           intent.getStringExtra("android.intent.extra.TEXT")
+                Log.d("MainActivity", "Media search query: $query, extras: ${intent.extras}")
+                if (!query.isNullOrBlank()) {
+                    handleAssistantQuery(query)
+                } else {
+                    // No query provided, start voice recognition
+                    handleAssistantQuery("Hello! I'm ready to help. What would you like to know?")
+                }
+            }
             Intent.ACTION_ASSIST -> {
                 // Handle Google Assistant assist intent
                 val query = intent.getStringExtra("android.intent.extra.TEXT") ?: 
