@@ -14,4 +14,6 @@
     <string name="error_speech_recognition">Speech recognition error</string>
     <string name="error_permission_required">Microphone permission is required</string>
     <string name="welcome_message">Voice assistant ready. Press play to start talking.</string>
+    <string name="ask_question_short">Ask Question</string>
+    <string name="ask_question_long">Ask AI Assistant</string>
 </resources>

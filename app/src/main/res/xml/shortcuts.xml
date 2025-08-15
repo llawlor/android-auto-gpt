@@ -21,8 +21,8 @@
         android:shortcutId="ask_question"
         android:enabled="true"
         android:icon="@mipmap/ic_launcher"
-        android:shortcutShortLabel="Ask Question"
-        android:shortcutLongLabel="Ask AI Assistant">
+        android:shortcutShortLabel="@string/ask_question_short"
+        android:shortcutLongLabel="@string/ask_question_long">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.example.autovoiceassistant"
