@@ -32,8 +32,11 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         mediaSession = MediaSession(this, TAG)
         mediaSession.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
-                Log.d(TAG, "onPlay - Starting voice recognition")
-                startVoiceRecognition()
+                Log.d(TAG, "onPlay - Prompting user to use voice search")
+                // In Android Auto, we can't directly start speech recognition
+                // Instead, prompt the user to use the voice search button
+                voiceManager.speak("Please use the voice search button on your steering wheel or Android Auto interface to talk to me")
+                updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
             
             override fun onStop() {
@@ -49,8 +52,11 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
             override fun onPlayFromSearch(query: String?, extras: Bundle?) {
                 Log.d(TAG, "onPlayFromSearch - Voice search query: $query")
                 // Handle voice search from Android Auto
-                query?.let {
-                    handleVoiceQuery(it)
+                if (query.isNullOrBlank()) {
+                    // No query provided, prompt user to try voice search
+                    voiceManager.speak("I didn't receive your question. Please try using the voice search button and speak your question clearly.")
+                } else {
+                    handleVoiceQuery(query)
                 }
             }
         })

@@ -1,1 +1,12 @@
 node_modules
+
+# Local configuration
+local.properties
+
+# Build directories
+.gradle/
+app/build/
+build/
+
+# IDE files
+.idea/
