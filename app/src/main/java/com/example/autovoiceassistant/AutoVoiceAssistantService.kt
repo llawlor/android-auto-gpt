@@ -120,24 +120,26 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     }
     
     override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaBrowser.MediaItem>>) {
-        Log.d(TAG, "onLoadChildren: $parentId")
+        Log.d(TAG, "onLoadChildren called with parentId: $parentId")
         
         val mediaItems = mutableListOf<MediaBrowser.MediaItem>()
         
         if (parentId == MEDIA_ROOT_ID) {
-            val voiceCommandItem = MediaBrowser.MediaItem(
-                MediaDescription.Builder()
-                    .setMediaId(VOICE_COMMAND_ID)
-                    .setTitle("Voice Assistant")
-                    .setSubtitle("Tap to start voice conversation")
-                    .build(),
-                MediaBrowser.MediaItem.FLAG_PLAYABLE
-            )
-            mediaItems.add(voiceCommandItem)
+            // Create a voice command item
+            val description = MediaDescription.Builder()
+                .setMediaId(VOICE_COMMAND_ID)
+                .setTitle("Voice Assistant")
+                .setSubtitle("Tap to start voice conversation")
+                .build()
+            
+            val mediaItem = MediaBrowser.MediaItem(description, MediaBrowser.MediaItem.FLAG_PLAYABLE)
+            mediaItems.add(mediaItem)
         }
         
         result.sendResult(mediaItems)
     }
+    
+
     
     // VoiceManager.VoiceCallback implementations
     override fun onSpeechRecognized(text: String) {
