@@ -2,6 +2,15 @@
 
 A hands-free AI voice assistant for Android Auto that integrates with OpenAI's ChatGPT API. Talk to your AI assistant while driving safely!
 
+## 🚀 Quick Start
+
+**Ready to use!** Pre-built APK files are available for immediate download and installation. No build setup required!
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/llawlor/android-auto-gpt)
+[![Android](https://img.shields.io/badge/Android-6.0%2B-green)](https://developer.android.com)
+[![API](https://img.shields.io/badge/API-23%2B-orange)](https://developer.android.com/guide/topics/manifest/uses-sdk-element)
+[![Tested](https://img.shields.io/badge/tested-Android%2010-blue)](https://developer.android.com)
+
 ## Features
 
 - 🎤 **Voice Recognition**: Speak naturally to interact with ChatGPT
@@ -12,33 +21,67 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
 
 ## Prerequisites
 
-- Android device with Android 6.0 (API level 23) or higher
-- Android Auto compatible vehicle or Android Auto app
-- OpenAI API key (get one at [platform.openai.com](https://platform.openai.com/api-keys))
-- Microphone permission for voice recognition
+- **Android Device**: Android 6.0+ (API 23+) - Tested on Android 10
+- **Android Auto**: Compatible vehicle or Android Auto app
+- **OpenAI API Key**: Get one at [platform.openai.com](https://platform.openai.com/api-keys)
+- **Permissions**: Microphone access for voice recognition
+- **Storage**: 200+ MB free space for installation
+
+### Compatibility
+
+**Supported Android Versions:**
+- ✅ Android 6.0+ (Marshmallow) - Minimum requirement
+- ✅ Android 10 - Fully tested and confirmed working
+- ✅ Android 11, 12, 13, 14 - Expected to work (built with API 34)
+
+**Android Auto Support:**
+- ✅ Wired Android Auto connection
+- ✅ Wireless Android Auto (where supported)
+- ✅ Android Auto on phone screens
+- ✅ Aftermarket and built-in head units
 
 ## Installation
 
+### Option 1: Download Pre-built APK (Recommended)
+
+**Quick Install - No Build Required:**
+
+1. **Download APK from GitHub**:
+   - Go to [Releases](https://github.com/llawlor/android-auto-gpt/tree/main/app/build/outputs/apk)
+   - Download `app-debug.apk` (7.6 MB) for testing
+   - Or download `app-release-unsigned.apk` (6.1 MB) for smaller size
+
+2. **Enable Unknown Sources on Android**:
+   - **Android 8.0+**: Settings > Apps > Special app access > Install unknown apps > [Your Browser] > Allow from this source
+   - **Android 7.1 and below**: Settings > Security > Unknown Sources (enable)
+
+3. **Install the APK**:
+   - Tap the downloaded APK file
+   - Follow installation prompts
+   - Grant required permissions (microphone, etc.)
+
+### Option 2: Build from Source
+
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/android-auto-gpt.git
+   git clone https://github.com/llawlor/android-auto-gpt.git
    cd android-auto-gpt
    ```
 
-2. **Open in Android Studio**:
-   - Open Android Studio
-   - Select "Open an existing project"
-   - Navigate to the cloned directory
-
-3. **Build the project**:
+2. **Build the project**:
    ```bash
    ./gradlew build
    ```
 
-4. **Install on your device**:
+3. **Install on your device**:
    ```bash
    ./gradlew installDebug
    ```
+
+**Build Requirements:**
+- Android SDK with API 23+ and build-tools 33.0.1+
+- Java 21 or compatible JDK
+- Gradle 8.5+ (included via wrapper)
 
 ## Setup
 
@@ -138,7 +181,21 @@ Android Auto integration:
 
 ## Troubleshooting
 
-### Common Issues
+### APK Installation Issues
+
+1. **"App not installed" error**:
+   - Enable "Install unknown apps" for your browser/file manager
+   - Clear Downloads cache: Settings > Apps > Downloads > Storage > Clear Cache
+   - Ensure sufficient storage space (200+ MB free)
+   - Try downloading the smaller release APK instead
+   - Restart device and try again
+
+2. **"Unknown sources" not working**:
+   - **Android 8.0+**: Enable per-app in Settings > Apps > Special app access > Install unknown apps
+   - **Android 7.1 and below**: Enable globally in Settings > Security > Unknown Sources
+   - Try using "Files by Google" app to install the APK
+
+### App Usage Issues
 
 1. **"Please set your OpenAI API key"**:
    - Go to Settings and enter a valid OpenAI API key
