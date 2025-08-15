@@ -35,27 +35,38 @@ class VoiceManager(private val context: Context) {
     }
     
     suspend fun initializeTextToSpeech(): Boolean = suspendCancellableCoroutine { continuation ->
+        Log.d("VoiceManager", "Initializing TextToSpeech...")
         textToSpeech = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                textToSpeech?.language = Locale.US
+                Log.d("VoiceManager", "TTS initialization successful")
+                val langResult = textToSpeech?.setLanguage(Locale.US)
+                
+                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Log.w("VoiceManager", "TTS language not supported, using default")
+                }
+                
                 textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
+                        Log.d("VoiceManager", "TTS started for utterance: $utteranceId")
                         isSpeaking = true
                         callback?.onTTSStarted()
                     }
                     
                     override fun onDone(utteranceId: String?) {
+                        Log.d("VoiceManager", "TTS completed for utterance: $utteranceId")
                         isSpeaking = false
                         callback?.onTTSFinished()
                     }
                     
                     override fun onError(utteranceId: String?) {
+                        Log.e("VoiceManager", "TTS error for utterance: $utteranceId")
                         isSpeaking = false
                         callback?.onTTSFinished()
                     }
                 })
                 continuation.resume(true)
             } else {
+                Log.e("VoiceManager", "TTS initialization failed with status: $status")
                 continuation.resume(false)
             }
         }
@@ -150,12 +161,37 @@ class VoiceManager(private val context: Context) {
     }
     
     fun speak(text: String) {
+        Log.d("VoiceManager", "Attempting to speak text: '${text.take(50)}...' (length: ${text.length})")
+        
+        // Validate text before speaking
+        if (text.isBlank()) {
+            Log.w("VoiceManager", "Cannot speak empty or blank text")
+            callback?.onTTSFinished() // Immediately call finished since there's nothing to speak
+            return
+        }
+        
+        if (textToSpeech == null) {
+            Log.e("VoiceManager", "TTS not initialized, cannot speak")
+            callback?.onTTSFinished()
+            return
+        }
+        
         if (!isSpeaking) {
             val utteranceId = UUID.randomUUID().toString()
             val params = Bundle().apply {
                 putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
             }
-            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+            
+            Log.d("VoiceManager", "Starting TTS for utterance: $utteranceId")
+            val result = textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+            
+            if (result == TextToSpeech.ERROR) {
+                Log.e("VoiceManager", "TTS speak() returned ERROR")
+                isSpeaking = false
+                callback?.onTTSFinished()
+            }
+        } else {
+            Log.w("VoiceManager", "Already speaking, ignoring new speak request")
         }
     }
     

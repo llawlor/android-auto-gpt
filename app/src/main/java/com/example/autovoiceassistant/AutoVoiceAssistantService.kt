@@ -222,8 +222,24 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                 val response = openAIClient.sendMessage(query)
                 response.onSuccess { aiResponse ->
                     Log.d(TAG, "Successfully received AI response (${aiResponse.length} chars)")
-                    updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
-                    voiceManager.speak(aiResponse)
+                    
+                    // Validate response before attempting to speak
+                    if (aiResponse.isBlank()) {
+                        Log.w(TAG, "Received blank response from OpenAI")
+                        updatePlaybackState(PlaybackState.STATE_ERROR, "Empty response received")
+                        voiceManager.speak("I received an empty response. Please try asking your question again.")
+                        return@onSuccess
+                    }
+                    
+                    if (aiResponse.length > 1000) {
+                        Log.w(TAG, "Response is very long (${aiResponse.length} chars), truncating for TTS")
+                        val truncatedResponse = aiResponse.take(800) + "... That's the main point."
+                        updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
+                        voiceManager.speak(truncatedResponse)
+                    } else {
+                        updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
+                        voiceManager.speak(aiResponse)
+                    }
                 }.onFailure { error ->
                     Log.e(TAG, "OpenAI API error for query: ${error.message}", error)
                     
