@@ -4,7 +4,7 @@
     <string name="ask_assistant_short">Ask AI</string>
     <string name="ask_assistant_long">Ask AI Assistant</string>
     <string name="voice_assistant_title">Voice Assistant</string>
-    <string name="voice_assistant_subtitle">Tap to start voice conversation</string>
+    <string name="voice_assistant_subtitle">Say "Search [question] on Auto Voice Assistant"</string>
     <string name="listening">Listening...</string>
     <string name="processing">Processing...</string>
     <string name="speaking">Speaking...</string>
@@ -13,7 +13,7 @@
     <string name="error_network">Network error. Please check your connection</string>
     <string name="error_speech_recognition">Speech recognition error</string>
     <string name="error_permission_required">Microphone permission is required</string>
-    <string name="welcome_message">Voice assistant ready. Press play to start talking.</string>
+    <string name="welcome_message">Voice assistant ready. Say "Search [your question] on Auto Voice Assistant" to get started.</string>
     <string name="ask_question_short">Ask Question</string>
     <string name="ask_question_long">Ask AI Assistant</string>
 </resources>

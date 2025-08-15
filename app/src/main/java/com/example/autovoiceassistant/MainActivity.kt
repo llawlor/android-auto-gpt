@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     
     private fun setupUI() {
         binding.titleText.text = "AI Voice Assistant"
-        binding.descriptionText.text = "Connect to Android Auto to use voice commands while driving"
+        binding.descriptionText.text = "Connect to Android Auto and say 'Search [your question] on Auto Voice Assistant' to get started"
         
         binding.settingsButton.setOnClickListener {
             // Open settings to configure API key

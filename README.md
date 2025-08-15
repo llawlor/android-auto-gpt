@@ -113,17 +113,22 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
    - Tap to open the app
 
 3. **Start Talking**:
-   - Press the "Play" button or use voice commands
-   - Speak your question or request
+   - Use voice commands to interact with the AI assistant
+   - Say "Search [your question] on Auto Voice Assistant"
    - Listen to ChatGPT's response
 
 ### Voice Commands Examples
 
-- "What's the weather like today?"
-- "Tell me a joke"
-- "Explain quantum physics in simple terms"
-- "What are some good restaurants nearby?"
-- "Help me plan my day"
+**Natural Voice Commands:**
+- "Search what's the weather like today on Auto Voice Assistant"
+- "Search tell me a joke on Auto Voice Assistant"
+- "Search explain quantum physics in simple terms on Auto Voice Assistant"
+- "Search what are some good restaurants nearby on Auto Voice Assistant"
+- "Search help me plan my day on Auto Voice Assistant"
+
+**Alternative Pattern (also works):**
+- "Play what's the weather like today on Auto Voice Assistant"
+- "Play tell me a joke on Auto Voice Assistant"
 
 ## Project Structure
 

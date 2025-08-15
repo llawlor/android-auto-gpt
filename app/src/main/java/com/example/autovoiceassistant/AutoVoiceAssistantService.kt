@@ -33,8 +33,8 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         mediaSession = MediaSession(this, TAG)
         mediaSession.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
-                Log.d(TAG, "onPlay - Providing Google Assistant integration instructions")
-                voiceManager.speak("Hello! I'm your AI assistant. Press your voice button and say: Hey Google, open Auto Voice Assistant and ask about the weather. Or say: Hey Google, talk to Auto Voice Assistant. I'll process your questions through Google Assistant!")
+                Log.d(TAG, "onPlay - Providing voice command instructions")
+                voiceManager.speak("Hello! I'm your AI assistant. Use your voice button and say: Search what's the weather like on Auto Voice Assistant. You can ask me anything using the Search pattern!")
                 updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
             
@@ -52,8 +52,8 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                 Log.d(TAG, "onPlayFromSearch - Voice search query: $query")
                 // Handle voice search from Android Auto
                 if (query.isNullOrBlank()) {
-                    // No query provided, prompt user to try voice search
-                    voiceManager.speak("I didn't receive your question. Please try using the voice search button and speak your question clearly.")
+                    // No query provided, prompt user with proper command format
+                    voiceManager.speak("I didn't receive your question. Please say 'Search your question on Auto Voice Assistant' to get started.")
                 } else {
                     handleVoiceQuery(query)
                 }
