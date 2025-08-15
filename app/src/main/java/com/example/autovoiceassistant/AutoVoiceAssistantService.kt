@@ -156,33 +156,8 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     override fun onSpeechRecognized(text: String) {
         Log.d(TAG, "Speech recognized: $text")
         
-        // Show processing status
-        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $text")
-        
-        // Process the recognized speech with OpenAI
-        serviceScope.launch {
-            try {
-                val response = openAIClient.sendMessage(text)
-                response.onSuccess { aiResponse ->
-                    Log.d(TAG, "AI Response: $aiResponse")
-                    updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
-                    voiceManager.speak(aiResponse)
-                }.onFailure { error ->
-                    Log.e(TAG, "OpenAI API error", error)
-                    val errorMessage = when {
-                        error.message?.contains("API key") == true -> "Please set your OpenAI API key in settings"
-                        error.message?.contains("network") == true -> "Network error. Please check your connection"
-                        else -> "Sorry, I couldn't process your request right now"
-                    }
-                    updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $errorMessage")
-                    voiceManager.speak(errorMessage)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error processing speech", e)
-                updatePlaybackState(PlaybackState.STATE_ERROR, "Error processing request")
-                voiceManager.speak("Sorry, there was an error processing your request")
-            }
-        }
+        // Use the same robust handling as handleVoiceQuery
+        handleVoiceQuery(text)
     }
     
     override fun onSpeechError(error: String) {
@@ -223,28 +198,68 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         Log.d(TAG, "Handling voice query: $query")
         updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $query")
         
+        // Validate query length and content
+        if (query.isBlank()) {
+            Log.w(TAG, "Empty query received")
+            updatePlaybackState(PlaybackState.STATE_ERROR, "No query provided")
+            voiceManager.speak("I didn't receive a question. Please try asking again.")
+            return
+        }
+        
+        if (query.length > 500) {
+            Log.w(TAG, "Query too long: ${query.length} characters")
+            updatePlaybackState(PlaybackState.STATE_ERROR, "Query too long")
+            voiceManager.speak("Your question is too long. Please try asking a shorter question.")
+            return
+        }
+        
         // Process the voice query with OpenAI
         serviceScope.launch {
             try {
+                Log.d(TAG, "Starting OpenAI request for query: ${query.take(50)}...")
+                updatePlaybackState(PlaybackState.STATE_BUFFERING, "Connecting to AI...")
+                
                 val response = openAIClient.sendMessage(query)
                 response.onSuccess { aiResponse ->
-                    Log.d(TAG, "AI Response to query: $aiResponse")
+                    Log.d(TAG, "Successfully received AI response (${aiResponse.length} chars)")
                     updatePlaybackState(PlaybackState.STATE_PLAYING, "Speaking response...")
                     voiceManager.speak(aiResponse)
                 }.onFailure { error ->
-                    Log.e(TAG, "OpenAI API error for query", error)
-                    val errorMessage = when {
-                        error.message?.contains("API key") == true -> "Please set your OpenAI API key in settings"
-                        error.message?.contains("network") == true -> "Network error. Please check your connection"
-                        else -> "Sorry, I couldn't process your request right now"
+                    Log.e(TAG, "OpenAI API error for query: ${error.message}", error)
+                    
+                    // Use the detailed error messages from the enhanced OpenAI client
+                    val errorMessage = error.message ?: "Sorry, I couldn't process your request right now"
+                    
+                    // Provide user-friendly feedback based on error type
+                    val userMessage = when {
+                        errorMessage.contains("API key", ignoreCase = true) -> {
+                            "OpenAI API key issue. Please check your settings."
+                        }
+                        errorMessage.contains("network", ignoreCase = true) || 
+                        errorMessage.contains("connection", ignoreCase = true) -> {
+                            "Network connection problem. Please check your internet and try again."
+                        }
+                        errorMessage.contains("timeout", ignoreCase = true) -> {
+                            "Request timed out. Please try again with a simpler question."
+                        }
+                        errorMessage.contains("rate limit", ignoreCase = true) -> {
+                            "Too many requests. Please wait a moment and try again."
+                        }
+                        errorMessage.contains("unavailable", ignoreCase = true) -> {
+                            "AI service is temporarily unavailable. Please try again in a few minutes."
+                        }
+                        else -> {
+                            "Sorry, I couldn't process your request. Please try again."
+                        }
                     }
-                    updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $errorMessage")
-                    voiceManager.speak(errorMessage)
+                    
+                    updatePlaybackState(PlaybackState.STATE_ERROR, "Error: $userMessage")
+                    voiceManager.speak(userMessage)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error processing voice query", e)
-                updatePlaybackState(PlaybackState.STATE_ERROR, "Error processing request")
-                voiceManager.speak("Sorry, there was an error processing your request")
+                Log.e(TAG, "Unexpected error processing voice query", e)
+                updatePlaybackState(PlaybackState.STATE_ERROR, "Unexpected error")
+                voiceManager.speak("Sorry, there was an unexpected error. Please try again.")
             }
         }
     }
