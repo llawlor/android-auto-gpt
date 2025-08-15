@@ -2,6 +2,10 @@ package com.example.autovoiceassistant
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -18,6 +22,13 @@ class VoiceManager(private val context: Context) {
     private var textToSpeech: TextToSpeech? = null
     private var isListening = false
     private var isSpeaking = false
+    private var audioManager: AudioManager? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
+    private var hasAudioFocus = false
+    
+    companion object {
+        private const val TAG = "VoiceManager"
+    }
     
     interface VoiceCallback {
         fun onSpeechRecognized(text: String)
@@ -35,38 +46,55 @@ class VoiceManager(private val context: Context) {
     }
     
     suspend fun initializeTextToSpeech(): Boolean = suspendCancellableCoroutine { continuation ->
-        Log.d("VoiceManager", "Initializing TextToSpeech...")
+        Log.d(TAG, "Initializing TextToSpeech...")
+        
+        // Initialize AudioManager for Android Auto
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        
         textToSpeech = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                Log.d("VoiceManager", "TTS initialization successful")
+                Log.d(TAG, "TTS initialization successful")
                 val langResult = textToSpeech?.setLanguage(Locale.US)
                 
                 if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.w("VoiceManager", "TTS language not supported, using default")
+                    Log.w(TAG, "TTS language not supported, using default")
+                }
+                
+                // Configure TTS for Android Auto with proper audio attributes
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    val audioAttributes = AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                    
+                    textToSpeech?.setAudioAttributes(audioAttributes)
+                    Log.d(TAG, "TTS audio attributes set for Android Auto")
                 }
                 
                 textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
-                        Log.d("VoiceManager", "TTS started for utterance: $utteranceId")
+                        Log.d(TAG, "TTS started for utterance: $utteranceId")
                         isSpeaking = true
                         callback?.onTTSStarted()
                     }
                     
                     override fun onDone(utteranceId: String?) {
-                        Log.d("VoiceManager", "TTS completed for utterance: $utteranceId")
+                        Log.d(TAG, "TTS completed for utterance: $utteranceId")
                         isSpeaking = false
+                        releaseAudioFocus()
                         callback?.onTTSFinished()
                     }
                     
                     override fun onError(utteranceId: String?) {
-                        Log.e("VoiceManager", "TTS error for utterance: $utteranceId")
+                        Log.e(TAG, "TTS error for utterance: $utteranceId")
                         isSpeaking = false
+                        releaseAudioFocus()
                         callback?.onTTSFinished()
                     }
                 })
                 continuation.resume(true)
             } else {
-                Log.e("VoiceManager", "TTS initialization failed with status: $status")
+                Log.e(TAG, "TTS initialization failed with status: $status")
                 continuation.resume(false)
             }
         }
@@ -160,38 +188,120 @@ class VoiceManager(private val context: Context) {
         }
     }
     
+    private fun requestAudioFocus(): Boolean {
+        audioManager?.let { am ->
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+                
+                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                    .setAudioAttributes(audioAttributes)
+                    .setOnAudioFocusChangeListener { focusChange ->
+                        Log.d(TAG, "Audio focus changed: $focusChange")
+                        when (focusChange) {
+                            AudioManager.AUDIOFOCUS_LOSS,
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                                hasAudioFocus = false
+                                stopSpeaking()
+                            }
+                            AudioManager.AUDIOFOCUS_GAIN -> {
+                                hasAudioFocus = true
+                            }
+                        }
+                    }
+                    .build()
+                
+                val result = am.requestAudioFocus(audioFocusRequest!!)
+                hasAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                Log.d(TAG, "Audio focus request result: $result, hasAudioFocus: $hasAudioFocus")
+                hasAudioFocus
+            } else {
+                @Suppress("DEPRECATION")
+                val result = am.requestAudioFocus(
+                    { focusChange ->
+                        Log.d(TAG, "Audio focus changed (legacy): $focusChange")
+                        when (focusChange) {
+                            AudioManager.AUDIOFOCUS_LOSS,
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                                hasAudioFocus = false
+                                stopSpeaking()
+                            }
+                            AudioManager.AUDIOFOCUS_GAIN -> {
+                                hasAudioFocus = true
+                            }
+                        }
+                    },
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+                )
+                hasAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                Log.d(TAG, "Audio focus request result (legacy): $result, hasAudioFocus: $hasAudioFocus")
+                hasAudioFocus
+            }
+        }
+        return false
+    }
+    
+    private fun releaseAudioFocus() {
+        audioManager?.let { am ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                audioFocusRequest?.let { request ->
+                    am.abandonAudioFocusRequest(request)
+                    Log.d(TAG, "Audio focus released")
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                am.abandonAudioFocus { }
+                Log.d(TAG, "Audio focus released (legacy)")
+            }
+            hasAudioFocus = false
+        }
+    }
+    
     fun speak(text: String) {
-        Log.d("VoiceManager", "Attempting to speak text: '${text.take(50)}...' (length: ${text.length})")
+        Log.d(TAG, "Attempting to speak text: '${text.take(50)}...' (length: ${text.length})")
         
         // Validate text before speaking
         if (text.isBlank()) {
-            Log.w("VoiceManager", "Cannot speak empty or blank text")
+            Log.w(TAG, "Cannot speak empty or blank text")
             callback?.onTTSFinished() // Immediately call finished since there's nothing to speak
             return
         }
         
         if (textToSpeech == null) {
-            Log.e("VoiceManager", "TTS not initialized, cannot speak")
+            Log.e(TAG, "TTS not initialized, cannot speak")
             callback?.onTTSFinished()
             return
         }
         
         if (!isSpeaking) {
+            // Request audio focus before speaking
+            if (!requestAudioFocus()) {
+                Log.e(TAG, "Failed to gain audio focus, cannot speak")
+                callback?.onTTSFinished()
+                return
+            }
+            
             val utteranceId = UUID.randomUUID().toString()
             val params = Bundle().apply {
                 putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+                // Add Android Auto specific parameters
+                putString(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_MUSIC.toString())
             }
             
-            Log.d("VoiceManager", "Starting TTS for utterance: $utteranceId")
+            Log.d(TAG, "Starting TTS for utterance: $utteranceId with audio focus")
             val result = textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
             
             if (result == TextToSpeech.ERROR) {
-                Log.e("VoiceManager", "TTS speak() returned ERROR")
+                Log.e(TAG, "TTS speak() returned ERROR")
                 isSpeaking = false
+                releaseAudioFocus()
                 callback?.onTTSFinished()
             }
         } else {
-            Log.w("VoiceManager", "Already speaking, ignoring new speak request")
+            Log.w(TAG, "Already speaking, ignoring new speak request")
         }
     }
     
@@ -204,9 +314,12 @@ class VoiceManager(private val context: Context) {
     fun isCurrentlySpeaking(): Boolean = isSpeaking
     
     fun destroy() {
+        releaseAudioFocus()
         speechRecognizer?.destroy()
         textToSpeech?.shutdown()
         speechRecognizer = null
         textToSpeech = null
+        audioManager = null
+        audioFocusRequest = null
     }
 }
