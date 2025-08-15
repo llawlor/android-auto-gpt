@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <actions>
+    <!-- Main conversation action for "talk to Auto Voice Assistant" -->
     <action intentName="actions.intent.OPEN_APP_FEATURE">
-        <fulfillment urlTemplate="autovoiceassistant://ask{?query}">
+        <fulfillment urlTemplate="autovoiceassistant://conversation{?query}">
             <parameter-mapping
                 intentParameter="feature"
                 urlParameter="query" />
         </fulfillment>
     </action>
     
+    <!-- Direct query action for "ask Auto Voice Assistant about..." -->
     <action intentName="actions.intent.GET_THING">
         <fulfillment urlTemplate="autovoiceassistant://ask{?query}">
             <parameter-mapping
                 intentParameter="thing.name"
+                urlParameter="query" />
+        </fulfillment>
+    </action>
+    
+    <!-- Weather-specific action -->
+    <action intentName="actions.intent.GET_WEATHER">
+        <fulfillment urlTemplate="autovoiceassistant://weather{?location}">
+            <parameter-mapping
+                intentParameter="location"
+                urlParameter="location" />
+        </fulfillment>
+    </action>
+    
+    <!-- General question action -->
+    <action intentName="actions.intent.ASK_QUESTION">
+        <fulfillment urlTemplate="autovoiceassistant://question{?query}">
+            <parameter-mapping
+                intentParameter="question"
+                urlParameter="query" />
+        </fulfillment>
+    </action>
+    
+    <!-- Text query action for general queries -->
+    <action intentName="actions.intent.TEXT">
+        <fulfillment urlTemplate="autovoiceassistant://text{?query}">
+            <parameter-mapping
+                intentParameter="text"
                 urlParameter="query" />
         </fulfillment>
     </action>

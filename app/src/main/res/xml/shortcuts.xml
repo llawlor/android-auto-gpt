@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main conversation shortcut -->
     <shortcut
         android:shortcutId="ask_assistant"
         android:enabled="true"
@@ -11,6 +12,23 @@
             android:targetPackage="com.example.autovoiceassistant"
             android:targetClass="com.example.autovoiceassistant.MainActivity">
             <extra android:name="query" android:value="" />
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    
+    <!-- General question shortcut -->
+    <shortcut
+        android:shortcutId="ask_question"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="Ask Question"
+        android:shortcutLongLabel="Ask AI Assistant">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.autovoiceassistant"
+            android:targetClass="com.example.autovoiceassistant.MainActivity">
+            <extra android:name="query" android:value="" />
+            <extra android:name="query_type" android:value="question" />
         </intent>
         <categories android:name="android.shortcut.conversation" />
     </shortcut>

@@ -51,6 +51,19 @@
                 <action android:name="android.intent.action.VOICE_COMMAND" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            
+            <!-- Google Assistant App Actions integration -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            
+            <!-- Handle text queries from Assistant -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
 
         <!-- Settings Activity -->
@@ -82,7 +95,7 @@
         <!-- Google Assistant App Actions -->
         <meta-data
             android:name="com.google.android.actions"
-            android:resource="@xml/actions" />
+            android:resource="@xml/app_actions" />
             
         <!-- App shortcuts for Assistant -->
         <meta-data

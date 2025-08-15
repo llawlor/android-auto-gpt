@@ -71,10 +71,50 @@ class MainActivity : AppCompatActivity() {
                 // Handle deep link from Google Assistant
                 data?.let { uri ->
                     if (uri.scheme == "autovoiceassistant") {
-                        val query = uri.getQueryParameter("query")
-                        Log.d("MainActivity", "Google Assistant query: $query")
-                        if (!query.isNullOrBlank()) {
-                            handleAssistantQuery(query)
+                        val path = uri.host ?: ""
+                        val query = uri.getQueryParameter("query") ?: uri.getQueryParameter("location")
+                        
+                        Log.d("MainActivity", "Google Assistant deep link - path: $path, query: $query")
+                        
+                        when (path) {
+                            "conversation" -> {
+                                // Handle "talk to Auto Voice Assistant"
+                                if (!query.isNullOrBlank()) {
+                                    handleAssistantQuery(query)
+                                } else {
+                                    // Start conversation mode
+                                    handleAssistantQuery("Hello, how can I help you?")
+                                }
+                            }
+                            "ask" -> {
+                                // Handle "ask Auto Voice Assistant about..."
+                                if (!query.isNullOrBlank()) {
+                                    handleAssistantQuery(query)
+                                }
+                            }
+                            "weather" -> {
+                                // Handle weather-specific queries
+                                val location = query ?: "current location"
+                                handleAssistantQuery("What's the weather like in $location?")
+                            }
+                            "question" -> {
+                                // Handle general questions
+                                if (!query.isNullOrBlank()) {
+                                    handleAssistantQuery(query)
+                                }
+                            }
+                            "text" -> {
+                                // Handle text-based queries
+                                if (!query.isNullOrBlank()) {
+                                    handleAssistantQuery(query)
+                                }
+                            }
+                            else -> {
+                                // Fallback for any other deep links
+                                if (!query.isNullOrBlank()) {
+                                    handleAssistantQuery(query)
+                                }
+                            }
                         }
                     }
                 }
@@ -85,6 +125,29 @@ class MainActivity : AppCompatActivity() {
                 Log.d("MainActivity", "Voice search query: $query")
                 if (!query.isNullOrBlank()) {
                     handleAssistantQuery(query)
+                }
+            }
+            Intent.ACTION_ASSIST -> {
+                // Handle Google Assistant assist intent
+                val query = intent.getStringExtra("android.intent.extra.TEXT") ?: 
+                           intent.getStringExtra("query") ?:
+                           intent.getStringExtra("android.intent.extra.ASSIST_INPUT_HINT_TEXT")
+                Log.d("MainActivity", "Assistant query: $query")
+                if (!query.isNullOrBlank()) {
+                    handleAssistantQuery(query)
+                } else {
+                    // No specific query, start general conversation
+                    handleAssistantQuery("Hello, I'm your AI assistant. How can I help you today?")
+                }
+            }
+            Intent.ACTION_SEND -> {
+                // Handle text sent from Google Assistant
+                if (intent.type == "text/plain") {
+                    val query = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    Log.d("MainActivity", "Text sent from Assistant: $query")
+                    if (!query.isNullOrBlank()) {
+                        handleAssistantQuery(query)
+                    }
                 }
             }
         }

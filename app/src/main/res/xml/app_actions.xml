@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actions>
+    <!-- Google Assistant App Actions for proper voice command recognition -->
+    
+    <!-- Handle "Hey Google, talk to Auto Voice Assistant" -->
+    <action intentName="actions.intent.START_EXERCISE">
+        <fulfillment urlTemplate="autovoiceassistant://conversation{?query}">
+            <parameter-mapping
+                intentParameter="exercise.name"
+                urlParameter="query" />
+        </fulfillment>
+    </action>
+    
+    <!-- Handle "Hey Google, ask Auto Voice Assistant about the weather" -->
+    <action intentName="actions.intent.GET_WEATHER">
+        <fulfillment urlTemplate="autovoiceassistant://weather{?location}">
+            <parameter-mapping
+                intentParameter="location"
+                urlParameter="location" />
+        </fulfillment>
+    </action>
+    
+    <!-- Handle "Hey Google, ask Auto Voice Assistant [question]" -->
+    <action intentName="actions.intent.GET_THING">
+        <fulfillment urlTemplate="autovoiceassistant://ask{?query}">
+            <parameter-mapping
+                intentParameter="thing.name"
+                urlParameter="query" />
+        </fulfillment>
+    </action>
+    
+    <!-- Handle general conversation starters -->
+    <action intentName="actions.intent.OPEN_APP_FEATURE">
+        <fulfillment urlTemplate="autovoiceassistant://conversation{?feature}">
+            <parameter-mapping
+                intentParameter="feature"
+                urlParameter="feature" />
+        </fulfillment>
+    </action>
+</actions>
