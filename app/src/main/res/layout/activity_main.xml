@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="1. Configure your OpenAI API key in Settings\n2. Connect your phone to Android Auto\n3. Launch the app from your car's display\n4. Press play and start talking!"
+                android:text="1. Configure your Perplexity API key in Settings\n2. Connect your phone to Android Auto\n3. Launch the app from your car's display\n4. Press play and start talking!"
                 android:textSize="14sp"
                 android:textColor="@color/secondary_text"
                 android:lineSpacingExtra="4dp" />

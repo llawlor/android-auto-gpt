@@ -187,10 +187,10 @@ class MainActivity : AppCompatActivity() {
             
             // Check if API key is configured
             val prefs = getSharedPreferences("voice_assistant_prefs", MODE_PRIVATE)
-            val apiKey = prefs.getString("openai_api_key", "")
+            val apiKey = prefs.getString("perplexity_api_key", "")
             
             if (apiKey.isNullOrEmpty()) {
-                Toast.makeText(this, "Please configure your OpenAI API key in settings", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Please configure your Perplexity API key in settings", Toast.LENGTH_LONG).show()
                 return
             }
             

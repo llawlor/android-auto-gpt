@@ -9,7 +9,7 @@
     <string name="processing">Processing...</string>
     <string name="speaking">Speaking...</string>
     <string name="ready">Ready</string>
-    <string name="error_no_api_key">Please configure your OpenAI API key in settings</string>
+    <string name="error_no_api_key">Please configure your Perplexity API key in settings</string>
     <string name="error_network">Network error. Please check your connection</string>
     <string name="error_speech_recognition">Speech recognition error</string>
     <string name="error_permission_required">Microphone permission is required</string>

@@ -66,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Get your API key from https://platform.openai.com/api-keys"
+                android:text="Get your API key from https://www.perplexity.ai/settings/api"
                 android:textSize="12sp"
                 android:textColor="@color/secondary_text" />
 
