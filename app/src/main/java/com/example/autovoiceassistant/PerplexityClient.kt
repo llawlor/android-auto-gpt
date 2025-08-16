@@ -32,10 +32,11 @@ class PerplexityClient(private val apiKey: String) {
     }
 
     data class ChatRequest(
-        val model: String = "llama-3.1-sonar-small-128k-online",
+        private val model = "sonar-pro",
         val messages: List<Message>,
         @SerializedName("max_tokens") val maxTokens: Int = 150,
-        val temperature: Double = 0.7
+        val temperature: Double = 0.7,
+        val stream: Boolean = false
     )
 
     data class Message(
@@ -75,6 +76,10 @@ class PerplexityClient(private val apiKey: String) {
                 val json = gson.toJson(request)
                 val body = json.toRequestBody("application/json".toMediaType())
 
+                Log.d(TAG, "Request JSON: $json")
+                Log.d(TAG, "API Key prefix: ${apiKey.take(8)}...")
+                Log.d(TAG, "Model: ${request.model}")
+
                 val httpRequest = Request.Builder()
                     .url("$baseUrl/chat/completions")
                     .addHeader("Authorization", "Bearer $apiKey")
@@ -83,7 +88,8 @@ class PerplexityClient(private val apiKey: String) {
                     .post(body)
                     .build()
 
-                Log.d(TAG, "Making HTTP request to Perplexity API")
+                Log.d(TAG, "Making HTTP request to: ${httpRequest.url}")
+                Log.d(TAG, "Headers: ${httpRequest.headers}")
                 val response = client.newCall(httpRequest).execute()
 
                 Log.d(TAG, "Received response: ${response.code} ${response.message}")
@@ -92,21 +98,27 @@ class PerplexityClient(private val apiKey: String) {
                     if (resp.isSuccessful) {
                         val responseBody = resp.body?.string()
                         Log.d(TAG, "Response body length: ${responseBody?.length ?: 0}")
-
+                        Log.d(TAG, "Response body: $responseBody")
+                        
                         if (responseBody != null) {
                             try {
                                 val chatResponse = gson.fromJson(responseBody, ChatResponse::class.java)
                                 val assistantMessage = chatResponse.choices.firstOrNull()?.message?.content
-
+                                
+                                Log.d(TAG, "Parsed choices count: ${chatResponse.choices.size}")
+                                Log.d(TAG, "Assistant message: $assistantMessage")
+                                
                                 if (assistantMessage != null && assistantMessage.isNotBlank()) {
                                     Log.d(TAG, "Successfully received response from Perplexity")
                                     return@withContext Result.success(assistantMessage.trim())
                                 } else {
                                     Log.w(TAG, "Empty or null response content from Perplexity")
+                                    Log.w(TAG, "Full response object: $chatResponse")
                                     lastException = Exception("Perplexity returned an empty response")
                                 }
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to parse Perplexity response", e)
+                                Log.e(TAG, "Raw response: $responseBody")
                                 lastException = Exception("Failed to parse Perplexity response: ${e.message}")
                             }
                         } else {
