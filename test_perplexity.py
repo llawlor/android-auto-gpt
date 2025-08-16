@@ -22,7 +22,7 @@ def test_perplexity_api(api_key, test_message="What is 2+2?"):
     
     # Exact same payload structure as Android app
     payload = {
-        "model": "sonar-pro",
+        "model": "sonar",
         "messages": [
             {
                 "role": "system", 

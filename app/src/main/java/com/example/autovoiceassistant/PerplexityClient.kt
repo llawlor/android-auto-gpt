@@ -32,7 +32,7 @@ class PerplexityClient(private val apiKey: String) {
     }
 
     data class ChatRequest(
-        private val model = "sonar-pro",
+        val model: String = "sonar",
         val messages: List<Message>,
         @SerializedName("max_tokens") val maxTokens: Int = 150,
         val temperature: Double = 0.7,
