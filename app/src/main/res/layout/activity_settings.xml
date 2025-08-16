@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:padding="24dp"
+    android:paddingBottom="48dp"
     tools:context=".SettingsActivity">
 
     <Button
@@ -50,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="OpenAI API Configuration"
+                android:text="Perplexity API Configuration"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/primary_text" />
@@ -68,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="OpenAI API Key"
+                android:hint="Perplexity API Key"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -113,7 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Your API key is stored securely on your device and is only used to communicate with OpenAI's servers. Never share your API key with others."
+                android:text="Your API key is stored securely on your device and is only used to communicate with Perplexity's servers. Never share your API key with others."
                 android:textSize="14sp"
                 android:textColor="@color/secondary_text"
                 android:lineSpacingExtra="2dp" />
@@ -135,3 +141,5 @@
         app:layout_constraintTop_toBottomOf="@+id/infoCard" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
