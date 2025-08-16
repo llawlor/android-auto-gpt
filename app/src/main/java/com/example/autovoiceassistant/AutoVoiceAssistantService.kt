@@ -17,7 +17,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     
     private lateinit var mediaSession: MediaSession
     private lateinit var voiceManager: VoiceManager
-    private lateinit var openAIClient: OpenAIClient
+    private lateinit var perplexityClient: PerplexityClient
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     
     companion object {
@@ -79,9 +79,9 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         voiceManager.setCallback(this)
         voiceManager.initializeSpeechRecognizer()
         
-        // Initialize OpenAI client - You'll need to set your API key
+        // Initialize Perplexity client - You'll need to set your API key
         val apiKey = getApiKeyFromPreferences() // Implement this method
-        openAIClient = OpenAIClient(apiKey)
+        perplexityClient = PerplexityClient(apiKey)
         
         // Initialize TTS and set welcome screen
         serviceScope.launch {
@@ -111,7 +111,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         // In a real app, store this securely in SharedPreferences or use a secure storage solution
         // For now, return a placeholder - user needs to set this
         val prefs = getSharedPreferences("voice_assistant_prefs", MODE_PRIVATE)
-        return prefs.getString("openai_api_key", "") ?: ""
+        return prefs.getString("perplexity_api_key", "") ?: ""
     }
     
     private fun startVoiceRecognition() {
@@ -252,19 +252,19 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
             return
         }
         
-        // Process the voice query with OpenAI
+        // Process the voice query with Perplexity
         serviceScope.launch {
             try {
-                Log.d(TAG, "Starting OpenAI request for query: ${query.take(50)}...")
+                Log.d(TAG, "Starting Perplexity request for query: ${query.take(50)}...")
                 updatePlaybackState(PlaybackState.STATE_BUFFERING, "Connecting to AI...")
                 
-                val response = openAIClient.sendMessage(query)
+                val response = perplexityClient.sendMessage(query)
                 response.onSuccess { aiResponse ->
                     Log.d(TAG, "Successfully received AI response (${aiResponse.length} chars)")
                     
                     // Validate response before attempting to speak
                     if (aiResponse.isBlank()) {
-                        Log.w(TAG, "Received blank response from OpenAI")
+                        Log.w(TAG, "Received blank response from Perplexity")
                         updatePlaybackState(PlaybackState.STATE_ERROR, "Empty response received")
                         updateMediaMetadata("Error", "Empty Response", "I received an empty response. Please try asking your question again.")
                         voiceManager.speak("I received an empty response. Please try asking your question again.")
@@ -290,15 +290,15 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                         voiceManager.speak(aiResponse)
                     }
                 }.onFailure { error ->
-                    Log.e(TAG, "OpenAI API error for query: ${error.message}", error)
+                    Log.e(TAG, "Perplexity API error for query: ${error.message}", error)
                     
-                    // Use the detailed error messages from the enhanced OpenAI client
+                    // Use the detailed error messages from the enhanced Perplexity client
                     val errorMessage = error.message ?: "Sorry, I couldn't process your request right now"
                     
                     // Provide user-friendly feedback based on error type
                     val userMessage = when {
                         errorMessage.contains("API key", ignoreCase = true) -> {
-                            "OpenAI API key issue. Please check your settings."
+                            "Perplexity API key issue. Please check your settings."
                         }
                         errorMessage.contains("network", ignoreCase = true) || 
                         errorMessage.contains("connection", ignoreCase = true) -> {

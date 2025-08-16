@@ -30,16 +30,16 @@ class SettingsActivity : AppCompatActivity() {
         }
         
         // Add help text for API key
-        binding.apiKeyHelpText.text = "Get your API key from https://platform.openai.com/api-keys"
+        binding.apiKeyHelpText.text = "Get your API key from https://www.perplexity.ai/settings/api"
     }
     
     private fun loadSettings() {
         val prefs = getSharedPreferences("voice_assistant_prefs", MODE_PRIVATE)
-        val apiKey = prefs.getString("openai_api_key", "")
+        val apiKey = prefs.getString("perplexity_api_key", "")
         
         // Show masked API key if it exists
         if (!apiKey.isNullOrEmpty()) {
-            binding.apiKeyEditText.setText("sk-" + "*".repeat(apiKey.length - 3))
+            binding.apiKeyEditText.setText("pplx-" + "*".repeat(apiKey.length - 5))
         }
     }
     
@@ -47,12 +47,12 @@ class SettingsActivity : AppCompatActivity() {
         val apiKey = binding.apiKeyEditText.text.toString().trim()
         
         if (apiKey.isEmpty()) {
-            Toast.makeText(this, "Please enter your OpenAI API key", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter your Perplexity API key", Toast.LENGTH_SHORT).show()
             return
         }
         
-        if (!apiKey.startsWith("sk-")) {
-            Toast.makeText(this, "OpenAI API key should start with 'sk-'", Toast.LENGTH_SHORT).show()
+        if (!apiKey.startsWith("pplx-")) {
+            Toast.makeText(this, "Perplexity API key should start with 'pplx-'", Toast.LENGTH_SHORT).show()
             return
         }
         
@@ -65,7 +65,7 @@ class SettingsActivity : AppCompatActivity() {
         
         val prefs = getSharedPreferences("voice_assistant_prefs", MODE_PRIVATE)
         prefs.edit()
-            .putString("openai_api_key", apiKey)
+            .putString("perplexity_api_key", apiKey)
             .apply()
         
         Toast.makeText(this, "Settings saved successfully", Toast.LENGTH_SHORT).show()
