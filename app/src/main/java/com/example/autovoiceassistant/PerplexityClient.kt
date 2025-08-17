@@ -24,6 +24,10 @@ class PerplexityClient(private val apiKey: String) {
 
     private val gson = Gson()
     private val baseUrl = "https://api.perplexity.ai"
+    
+    // Add conversation history
+    private val conversationHistory = mutableListOf<Message>()
+    private val maxHistorySize = 10 // Keep last 10 messages to avoid token limits
 
     companion object {
         private const val TAG = "PerplexityClient"
@@ -67,10 +71,18 @@ class PerplexityClient(private val apiKey: String) {
             try {
                 Log.d(TAG, "Attempt ${attempt + 1} of $MAX_RETRIES")
 
-                val messages = listOf(
-                    Message("system", "You are a helpful AI assistant designed for use while driving. Keep responses concise, clear, and safe for audio consumption. Avoid long lists or complex formatting. Provide direct, actionable answers. Use web search when needed for current information."),
-                    Message("user", userMessage)
-                )
+                // Build messages with conversation history
+                val messages = mutableListOf<Message>()
+                
+                // Add system message
+                messages.add(Message("system", "You are a helpful AI assistant designed for use while driving. Keep responses concise, clear, and safe for audio consumption. Avoid long lists or complex formatting. Provide direct, actionable answers. Use web search when needed for current information. You can reference previous questions in the conversation."))
+                
+                // Add conversation history
+                messages.addAll(conversationHistory)
+                
+                // Add current user message
+                val currentUserMessage = Message("user", userMessage)
+                messages.add(currentUserMessage)
 
                 val request = ChatRequest(messages = messages)
                 val json = gson.toJson(request)
@@ -79,6 +91,7 @@ class PerplexityClient(private val apiKey: String) {
                 Log.d(TAG, "Request JSON: $json")
                 Log.d(TAG, "API Key prefix: ${apiKey.take(8)}...")
                 Log.d(TAG, "Model: ${request.model}")
+                Log.d(TAG, "Conversation history size: ${conversationHistory.size}")
 
                 val httpRequest = Request.Builder()
                     .url("$baseUrl/chat/completions")
@@ -110,6 +123,11 @@ class PerplexityClient(private val apiKey: String) {
                                 
                                 if (assistantMessage != null && assistantMessage.isNotBlank()) {
                                     Log.d(TAG, "Successfully received response from Perplexity")
+                                    
+                                    // Add both user message and assistant response to history
+                                    addToConversationHistory(currentUserMessage)
+                                    addToConversationHistory(Message("assistant", assistantMessage.trim()))
+                                    
                                     return@withContext Result.success(assistantMessage.trim())
                                 } else {
                                     Log.w(TAG, "Empty or null response content from Perplexity")
@@ -170,5 +188,29 @@ class PerplexityClient(private val apiKey: String) {
 
         Log.e(TAG, "All retry attempts failed")
         Result.failure(lastException ?: Exception("Failed to communicate with Perplexity after $MAX_RETRIES attempts"))
+    }
+    
+    private fun addToConversationHistory(message: Message) {
+        conversationHistory.add(message)
+        
+        // Keep history size manageable to avoid token limits
+        if (conversationHistory.size > maxHistorySize) {
+            // Remove oldest messages (keep pairs of user/assistant messages)
+            conversationHistory.removeAt(0)
+            if (conversationHistory.isNotEmpty() && conversationHistory[0].role == "assistant") {
+                conversationHistory.removeAt(0)
+            }
+        }
+        
+        Log.d(TAG, "Added message to history. Current history size: ${conversationHistory.size}")
+    }
+    
+    fun clearConversationHistory() {
+        conversationHistory.clear()
+        Log.d(TAG, "Conversation history cleared")
+    }
+    
+    fun getConversationHistorySize(): Int {
+        return conversationHistory.size
     }
 }

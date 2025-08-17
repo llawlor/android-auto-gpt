@@ -1,6 +1,6 @@
-# Android Auto ChatGPT Voice Assistant
+# Android Auto AI Voice Assistant
 
-A hands-free AI voice assistant for Android Auto that integrates with OpenAI's ChatGPT API. Talk to your AI assistant while driving safely!
+A hands-free AI voice assistant for Android Auto that integrates with Perplexity AI. Talk to your AI assistant while driving safely with conversation memory and real-time web search capabilities!
 
 ## 🚀 Quick Start
 
@@ -13,17 +13,19 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
 
 ## Features
 
-- 🎤 **Voice Recognition**: Speak naturally to interact with ChatGPT
+- 🎤 **Voice Recognition**: Speak naturally to interact with AI
 - 🔊 **Text-to-Speech**: Hear responses spoken back to you
+- 🧠 **Conversation Memory**: Remembers previous questions in the same session
+- 🌐 **Real-time Web Search**: Access current information via Perplexity AI
 - 🚗 **Android Auto Integration**: Works seamlessly in your car's infotainment system
 - 🛡️ **Safety First**: Designed for hands-free operation while driving
-- 🔐 **Secure**: Your OpenAI API key is stored securely on your device
+- 🔐 **Secure**: Your Perplexity API key is stored securely on your device
 
 ## Prerequisites
 
 - **Android Device**: Android 6.0+ (API 23+) - Tested on Android 10
 - **Android Auto**: Compatible vehicle or Android Auto app
-- **OpenAI API Key**: Get one at [platform.openai.com](https://platform.openai.com/api-keys)
+- **Perplexity API Key**: Get one at [perplexity.ai](https://www.perplexity.ai/settings/api)
 - **Permissions**: Microphone access for voice recognition
 - **Storage**: 200+ MB free space for installation
 
@@ -85,15 +87,15 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
 
 ## Setup
 
-1. **Get OpenAI API Key**:
-   - Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
+1. **Get Perplexity API Key**:
+   - Visit [Perplexity API Settings](https://www.perplexity.ai/settings/api)
    - Create a new API key
-   - Copy the key (starts with `sk-`)
+   - Copy the key (starts with `pplx-`)
 
 2. **Configure the App**:
    - Open the app on your phone
    - Tap "Settings"
-   - Enter your OpenAI API key
+   - Enter your Perplexity API key
    - Tap "Save Settings"
 
 3. **Grant Permissions**:
@@ -115,7 +117,7 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
 3. **Start Talking**:
    - Use voice commands to interact with the AI assistant
    - Say "Search [your question] on Auto Voice Assistant"
-   - Listen to ChatGPT's response
+   - Listen to the AI's response with real-time web search
 
 ### Voice Commands Examples
 
@@ -130,6 +132,23 @@ A hands-free AI voice assistant for Android Auto that integrates with OpenAI's C
 - "Play what's the weather like today on Auto Voice Assistant"
 - "Play tell me a joke on Auto Voice Assistant"
 
+### Conversation Memory Features
+
+**Follow-up Questions:**
+- "What did I ask about before?" - References your previous questions
+- "Tell me more about that" - Continues the conversation context
+- "What was my last question?" - Recalls recent conversation history
+
+**Conversation Management:**
+- "Clear conversation" - Starts a fresh conversation
+- "Start new conversation" - Resets conversation history
+- "Forget previous questions" - Clears all context
+
+**How It Works:**
+- The assistant remembers up to 10 previous messages in your current session
+- Context is maintained until you restart the app or clear the conversation
+- Perfect for follow-up questions and continuing discussions while driving
+
 ## Project Structure
 
 ```
@@ -140,7 +159,7 @@ app/
 │   │   ├── SettingsActivity.kt          # Settings configuration
 │   │   ├── AutoVoiceAssistantService.kt # Android Auto service
 │   │   ├── VoiceManager.kt              # Voice recognition & TTS
-│   │   └── OpenAIClient.kt              # OpenAI API integration
+│   │   └── PerplexityClient.kt          # Perplexity AI API integration
 │   ├── res/
 │   │   ├── layout/                      # UI layouts
 │   │   ├── values/                      # Strings, colors, themes
@@ -152,11 +171,12 @@ app/
 
 ## Key Components
 
-### OpenAIClient.kt
-Handles communication with OpenAI's ChatGPT API:
-- Sends user messages to ChatGPT
-- Receives and processes AI responses
-- Handles API errors gracefully
+### PerplexityClient.kt
+Handles communication with Perplexity AI API:
+- Sends user messages with conversation history to Perplexity AI
+- Receives and processes AI responses with real-time web search
+- Manages conversation memory (up to 10 messages)
+- Handles API errors gracefully with retry logic
 
 ### VoiceManager.kt
 Manages voice input and output:
@@ -169,6 +189,7 @@ Android Auto integration:
 - MediaBrowserService for Android Auto compatibility
 - Handles play/pause/stop controls
 - Manages voice interaction lifecycle
+- Processes conversation management commands
 
 ## Safety Features
 
@@ -202,9 +223,9 @@ Android Auto integration:
 
 ### App Usage Issues
 
-1. **"Please set your OpenAI API key"**:
-   - Go to Settings and enter a valid OpenAI API key
-   - Ensure the key starts with `sk-`
+1. **"Please set your Perplexity API key"**:
+   - Go to Settings and enter a valid Perplexity API key
+   - Ensure the key starts with `pplx-`
 
 2. **"Microphone permission required"**:
    - Grant microphone permission in Android settings

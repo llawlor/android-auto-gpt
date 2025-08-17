@@ -235,6 +235,15 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
         // Display the query being processed
         updateMediaMetadata("Processing Query", "Thinking...", query)
         
+        // Check for special commands
+        val normalizedQuery = query.lowercase().trim()
+        if (normalizedQuery.contains("clear conversation") || 
+            normalizedQuery.contains("start new conversation") ||
+            normalizedQuery.contains("forget previous questions")) {
+            clearConversationHistory()
+            return
+        }
+        
         // Validate query length and content
         if (query.isBlank()) {
             Log.w(TAG, "Empty query received")
@@ -333,6 +342,18 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
                 voiceManager.speak("Sorry, there was an unexpected error. Please try again.")
             }
         }
+    }
+    
+    private fun clearConversationHistory() {
+        perplexityClient.clearConversationHistory()
+        updateMediaMetadata(
+            "Conversation Cleared", 
+            "Fresh start", 
+            "I've cleared our conversation history. You can start asking new questions."
+        )
+        updatePlaybackState(PlaybackState.STATE_STOPPED, "Conversation cleared")
+        voiceManager.speak("I've cleared our conversation history. You can start asking new questions.")
+        Log.d(TAG, "Conversation history cleared by user request")
     }
     
     override fun onDestroy() {
