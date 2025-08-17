@@ -269,9 +269,13 @@ class VoiceManager(private val context: Context) {
     fun speak(text: String) {
         Log.d(TAG, "Attempting to speak text: '${text.take(50)}...' (length: ${text.length})")
         
+        // Clean the text before speaking
+        val cleanedText = cleanTextForSpeech(text)
+        Log.d(TAG, "Cleaned text: '${cleanedText.take(50)}...' (length: ${cleanedText.length})")
+        
         // Validate text before speaking
-        if (text.isBlank()) {
-            Log.w(TAG, "Cannot speak empty or blank text")
+        if (cleanedText.isBlank()) {
+            Log.w(TAG, "Cannot speak empty or blank text after cleaning")
             callback?.onTTSFinished() // Immediately call finished since there's nothing to speak
             return
         }
@@ -299,7 +303,7 @@ class VoiceManager(private val context: Context) {
             }
             
             Log.d(TAG, "Starting TTS for utterance: $utteranceId with audio focus")
-            val result = textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+            val result = textToSpeech?.speak(cleanedText, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
             
             if (result == TextToSpeech.ERROR) {
                 Log.e(TAG, "TTS speak() returned ERROR")
@@ -315,6 +319,44 @@ class VoiceManager(private val context: Context) {
     fun stopSpeaking() {
         textToSpeech?.stop()
         isSpeaking = false
+    }
+    
+    private fun cleanTextForSpeech(text: String): String {
+        var cleaned = text
+        
+        // Remove HTML tags
+        cleaned = cleaned.replace(Regex("<[^>]*>"), "")
+        
+        // Remove markdown links [text](url)
+        cleaned = cleaned.replace(Regex("\\[([^\\]]+)\\]\\([^)]+\\)"), "$1")
+        
+        // Remove reference citations like [1], [2], etc.
+        cleaned = cleaned.replace(Regex("\\[\\d+\\]"), "")
+        
+        // Remove URLs (http/https)
+        cleaned = cleaned.replace(Regex("https?://[^\\s]+"), "")
+        
+        // Remove hash symbols and hex codes
+        cleaned = cleaned.replace(Regex("#[0-9a-fA-F]+"), "")
+        cleaned = cleaned.replace(Regex("0x[0-9a-fA-F]+"), "")
+        
+        // Remove common reference patterns
+        cleaned = cleaned.replace(Regex("\\(Source:.*?\\)"), "")
+        cleaned = cleaned.replace(Regex("Source:.*"), "")
+        cleaned = cleaned.replace(Regex("References?:.*", RegexOption.DOT_MATCHES_ALL), "")
+        
+        // Remove extra whitespace and clean up
+        cleaned = cleaned.replace(Regex("\\s+"), " ")
+        cleaned = cleaned.trim()
+        
+        // Remove common web artifacts
+        cleaned = cleaned.replace("&nbsp;", " ")
+        cleaned = cleaned.replace("&amp;", "and")
+        cleaned = cleaned.replace("&lt;", "less than")
+        cleaned = cleaned.replace("&gt;", "greater than")
+        cleaned = cleaned.replace("&quot;", "\"")
+        
+        return cleaned
     }
     
     fun isCurrentlyListening(): Boolean = isListening
