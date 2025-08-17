@@ -190,6 +190,11 @@ class VoiceManager(private val context: Context) {
     
     private fun requestAudioFocus(): Boolean {
         audioManager?.let { am ->
+            // Release any existing audio focus first to ensure clean state
+            if (hasAudioFocus) {
+                releaseAudioFocus()
+            }
+            
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val audioAttributes = AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -287,7 +292,8 @@ class VoiceManager(private val context: Context) {
         }
         
         if (!isSpeaking) {
-            // Request audio focus before speaking
+            // Always try to request audio focus before speaking, even if we think we have it
+            Log.d(TAG, "Requesting audio focus for new TTS request")
             if (!requestAudioFocus()) {
                 Log.e(TAG, "Failed to gain audio focus, cannot speak")
                 callback?.onTTSFinished()
@@ -317,8 +323,11 @@ class VoiceManager(private val context: Context) {
     }
     
     fun stopSpeaking() {
+        Log.d(TAG, "Stopping TTS - current state: isSpeaking=$isSpeaking")
         textToSpeech?.stop()
         isSpeaking = false
+        releaseAudioFocus()
+        Log.d(TAG, "TTS stopped and audio focus released")
     }
     
     private fun cleanTextForSpeech(text: String): String {
