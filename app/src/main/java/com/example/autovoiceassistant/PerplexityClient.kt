@@ -116,6 +116,14 @@ class PerplexityClient(private val apiKey: String) {
                         if (responseBody != null) {
                             try {
                                 val chatResponse = gson.fromJson(responseBody, ChatResponse::class.java)
+                                
+                                // Null check for chatResponse and choices
+                                if (chatResponse?.choices == null) {
+                                    Log.e(TAG, "Invalid response structure: chatResponse or choices is null")
+                                    lastException = Exception("Invalid response structure from Perplexity")
+                                    return@use
+                                }
+                                
                                 val assistantMessage = chatResponse.choices.firstOrNull()?.message?.content
                                 
                                 Log.d(TAG, "Parsed choices count: ${chatResponse.choices.size}")
@@ -191,18 +199,24 @@ class PerplexityClient(private val apiKey: String) {
     }
     
     private fun addToConversationHistory(message: Message) {
-        conversationHistory.add(message)
-        
-        // Keep history size manageable to avoid token limits
-        if (conversationHistory.size > maxHistorySize) {
-            // Remove oldest messages (keep pairs of user/assistant messages)
-            conversationHistory.removeAt(0)
-            if (conversationHistory.isNotEmpty() && conversationHistory[0].role == "assistant") {
-                conversationHistory.removeAt(0)
+        try {
+            conversationHistory.add(message)
+            
+            // Keep history size manageable to avoid token limits
+            if (conversationHistory.size > maxHistorySize) {
+                // Remove oldest messages (keep pairs of user/assistant messages)
+                if (conversationHistory.isNotEmpty()) {
+                    conversationHistory.removeAt(0)
+                }
+                if (conversationHistory.isNotEmpty() && conversationHistory[0].role == "assistant") {
+                    conversationHistory.removeAt(0)
+                }
             }
+            
+            Log.d(TAG, "Added message to history. Current history size: ${conversationHistory.size}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding message to conversation history", e)
         }
-        
-        Log.d(TAG, "Added message to history. Current history size: ${conversationHistory.size}")
     }
     
     fun clearConversationHistory() {

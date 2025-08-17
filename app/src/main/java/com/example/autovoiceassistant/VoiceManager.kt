@@ -256,17 +256,22 @@ class VoiceManager(private val context: Context) {
     }
     
     private fun releaseAudioFocus() {
-        audioManager?.let { am ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioFocusRequest?.let { request ->
-                    am.abandonAudioFocusRequest(request)
-                    Log.d(TAG, "Audio focus released")
+        try {
+            audioManager?.let { am ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    audioFocusRequest?.let { request ->
+                        am.abandonAudioFocusRequest(request)
+                        Log.d(TAG, "Audio focus released")
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    am.abandonAudioFocus { }
+                    Log.d(TAG, "Audio focus released (legacy)")
                 }
-            } else {
-                @Suppress("DEPRECATION")
-                am.abandonAudioFocus { }
-                Log.d(TAG, "Audio focus released (legacy)")
+                hasAudioFocus = false
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error releasing audio focus", e)
             hasAudioFocus = false
         }
     }
