@@ -45,13 +45,15 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
             }
             
             override fun onStop() {
-                Log.d(TAG, "onStop - Stopping voice recognition")
+                Log.d(TAG, "onStop - Stopping voice recognition and speech")
                 stopVoiceRecognition()
             }
             
             override fun onPause() {
-                Log.d(TAG, "onPause - Pausing voice recognition")
+                Log.d(TAG, "onPause - Pausing voice recognition and stopping speech")
                 voiceManager.stopListening()
+                voiceManager.stopSpeaking()
+                updatePlaybackState(PlaybackState.STATE_PAUSED, "Paused")
             }
             
             override fun onPlayFromSearch(query: String?, extras: Bundle?) {
