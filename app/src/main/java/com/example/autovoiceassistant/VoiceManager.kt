@@ -63,7 +63,7 @@ class VoiceManager(private val context: Context) {
                 // Configure TTS for Android Auto with proper audio attributes
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     val audioAttributes = AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build()
                     
@@ -192,21 +192,24 @@ class VoiceManager(private val context: Context) {
         audioManager?.let { am ->
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build()
                 
-                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
                     .setAudioAttributes(audioAttributes)
                     .setOnAudioFocusChangeListener { focusChange ->
                         Log.d(TAG, "Audio focus changed: $focusChange")
                         when (focusChange) {
                             AudioManager.AUDIOFOCUS_LOSS,
-                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                                Log.d(TAG, "Lost audio focus, stopping TTS")
                                 hasAudioFocus = false
                                 stopSpeaking()
                             }
                             AudioManager.AUDIOFOCUS_GAIN -> {
+                                Log.d(TAG, "Gained audio focus")
                                 hasAudioFocus = true
                             }
                         }
@@ -224,17 +227,20 @@ class VoiceManager(private val context: Context) {
                         Log.d(TAG, "Audio focus changed (legacy): $focusChange")
                         when (focusChange) {
                             AudioManager.AUDIOFOCUS_LOSS,
-                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                                Log.d(TAG, "Lost audio focus (legacy), stopping TTS")
                                 hasAudioFocus = false
                                 stopSpeaking()
                             }
                             AudioManager.AUDIOFOCUS_GAIN -> {
+                                Log.d(TAG, "Gained audio focus (legacy)")
                                 hasAudioFocus = true
                             }
                         }
                     },
                     AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
                 )
                 hasAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
                 Log.d(TAG, "Audio focus request result (legacy): $result, hasAudioFocus: $hasAudioFocus")
@@ -287,8 +293,9 @@ class VoiceManager(private val context: Context) {
             val utteranceId = UUID.randomUUID().toString()
             val params = Bundle().apply {
                 putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-                // Add Android Auto specific parameters
+                // Force TTS to use media stream for proper audio focus handling
                 putString(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_MUSIC.toString())
+                putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
             }
             
             Log.d(TAG, "Starting TTS for utterance: $utteranceId with audio focus")
