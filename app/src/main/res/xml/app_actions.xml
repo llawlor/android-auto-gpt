@@ -2,7 +2,7 @@
 <actions>
     <!-- Google Assistant App Actions for proper voice command recognition -->
     
-    <!-- Handle "Hey Google, talk to Auto Voice Assistant" -->
+    <!-- Handle "Hey Google, talk to AutoChat" -->
     <action intentName="actions.intent.START_EXERCISE">
         <fulfillment urlTemplate="autochat://conversation{?query}">
             <parameter-mapping
@@ -11,7 +11,7 @@
         </fulfillment>
     </action>
     
-    <!-- Handle "Hey Google, ask Auto Voice Assistant about the weather" -->
+    <!-- Handle "Hey Google, ask AutoChat about the weather" -->
     <action intentName="actions.intent.GET_WEATHER">
         <fulfillment urlTemplate="autochat://weather{?location}">
             <parameter-mapping
@@ -20,7 +20,7 @@
         </fulfillment>
     </action>
     
-    <!-- Handle "Hey Google, ask Auto Voice Assistant [question]" -->
+    <!-- Handle "Hey Google, ask AutoChat [question]" -->
     <action intentName="actions.intent.GET_THING">
         <fulfillment urlTemplate="autochat://ask{?query}">
             <parameter-mapping

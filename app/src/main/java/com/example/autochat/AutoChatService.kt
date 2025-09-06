@@ -38,9 +38,9 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
                 updateMediaMetadata(
                     "Voice Commands", 
                     "How to use", 
-                    "Use your voice button and say: 'Search [your question] on Auto Voice Assistant'. For example: 'Search what's the weather like on Auto Voice Assistant'"
+                    "Use your voice button and say: 'Search [your question] on AutoChat'. For example: 'Search what's the weather like on AutoChat'"
                 )
-                voiceManager.speak("Hello! I'm your AI assistant. Use your voice button and say: Search what's the weather like on Auto Voice Assistant. You can ask me anything using the Search pattern!")
+                voiceManager.speak("Hello! I'm AutoChat. Use your voice button and say: Search what's the weather like on AutoChat. You can ask me anything using the Search pattern!")
                 updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
             
@@ -64,9 +64,9 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
                     updateMediaMetadata(
                         "No Query Received", 
                         "Try again", 
-                        "Please say 'Search [your question] on Auto Voice Assistant' to get started."
+                        "Please say 'Search [your question] on AutoChat' to get started."
                     )
-                    voiceManager.speak("I didn't receive your question. Please say 'Search your question on Auto Voice Assistant' to get started.")
+                    voiceManager.speak("I didn't receive your question. Please say 'Search your question on AutoChat' to get started.")
                 } else {
                     handleVoiceQuery(query)
                 }
@@ -91,11 +91,11 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
             if (ttsInitialized) {
                 Log.d(TAG, "Text-to-Speech initialized successfully")
                 updateMediaMetadata(
-                    "AI Voice Assistant Ready", 
+                    "AutoChat Ready", 
                     "Press play to start", 
-                    "Say 'Search [your question] on Auto Voice Assistant' to get started. You can ask me anything!"
+                    "Say 'Search [your question] on AutoChat' to get started. You can ask me anything!"
                 )
-                voiceManager.speak("Voice assistant ready. Press play to start talking.")
+                voiceManager.speak("AutoChat ready. Press play to start talking.")
             } else {
                 Log.e(TAG, "Failed to initialize Text-to-Speech")
                 updateMediaMetadata(
@@ -149,7 +149,7 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
     private fun updateMediaMetadata(title: String, subtitle: String = "", description: String = "") {
         val metadata = MediaMetadata.Builder()
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, "AI Voice Assistant")
+            .putString(MediaMetadata.METADATA_KEY_ARTIST, "AutoChat")
             .putString(MediaMetadata.METADATA_KEY_ALBUM, subtitle)
             .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title)
             .putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, subtitle)
@@ -175,7 +175,7 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
             // Create a voice command item
             val description = MediaDescription.Builder()
                 .setMediaId(VOICE_COMMAND_ID)
-                .setTitle("Voice Assistant")
+                .setTitle("AutoChat")
                 .setSubtitle("Tap to start voice conversation")
                 .build()
             

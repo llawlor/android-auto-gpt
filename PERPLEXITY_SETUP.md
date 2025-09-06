@@ -1,7 +1,7 @@
 # Perplexity AI Setup Guide
 
 ## Overview
-This Android Auto Voice Assistant now uses Perplexity AI instead of OpenAI, providing enhanced web search capabilities and real-time information access. Perplexity combines conversational AI with web search in a single API call, making it perfect for voice assistant use cases.
+AutoChat now uses Perplexity AI instead of OpenAI, providing enhanced web search capabilities and real-time information access. Perplexity combines conversational AI with web search in a single API call, making it perfect for AutoChat use cases.
 
 ## Getting Your Perplexity API Key
 
@@ -17,7 +17,7 @@ This Android Auto Voice Assistant now uses Perplexity AI instead of OpenAI, prov
 ## Setting Up the API Key in the App
 
 1. **Open the App**
-   - Launch the Android Auto Voice Assistant app
+   - Launch the AutoChat app
    - Navigate to Settings
 
 2. **Enter API Key**
@@ -48,10 +48,10 @@ This Android Auto Voice Assistant now uses Perplexity AI instead of OpenAI, prov
 
 ## Example Voice Commands
 
-- "Search what's the weather like on Auto Voice Assistant"
-- "Search latest news about technology on Auto Voice Assistant"
-- "Search how to cook pasta on Auto Voice Assistant"
-- "Search what time does the store close on Auto Voice Assistant"
+- "Search what's the weather like on AutoChat"
+- "Search latest news about technology on AutoChat"
+- "Search how to cook pasta on AutoChat"
+- "Search what time does the store close on AutoChat"
 
 ## Troubleshooting
 
@@ -81,6 +81,6 @@ If you previously used OpenAI:
 ## Support
 
 For issues with:
-- **App functionality**: Check the Android Auto Voice Assistant documentation
+- **App functionality**: Check the AutoChat documentation
 - **Perplexity API**: Visit [Perplexity AI Support](https://docs.perplexity.ai/)
 - **API key issues**: Check your Perplexity account settings

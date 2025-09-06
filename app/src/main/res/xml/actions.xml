@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <actions>
-    <!-- Main conversation action for "talk to Auto Voice Assistant" -->
+    <!-- Main conversation action for "talk to AutoChat" -->
     <action intentName="actions.intent.OPEN_APP_FEATURE">
         <fulfillment urlTemplate="autochat://conversation{?query}">
             <parameter-mapping
@@ -9,7 +9,7 @@
         </fulfillment>
     </action>
     
-    <!-- Direct query action for "ask Auto Voice Assistant about..." -->
+    <!-- Direct query action for "ask AutoChat about..." -->
     <action intentName="actions.intent.GET_THING">
         <fulfillment urlTemplate="autochat://ask{?query}">
             <parameter-mapping

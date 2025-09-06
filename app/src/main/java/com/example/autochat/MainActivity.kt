@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                         
                         when (path) {
                             "conversation" -> {
-                                // Handle "talk to Auto Voice Assistant"
+                                // Handle "talk to AutoChat"
                                 if (!query.isNullOrBlank()) {
                                     handleAssistantQuery(query)
                                 } else {
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                             "ask" -> {
-                                // Handle "ask Auto Voice Assistant about..."
+                                // Handle "ask AutoChat about..."
                                 if (!query.isNullOrBlank()) {
                                     handleAssistantQuery(query)
                                 }
