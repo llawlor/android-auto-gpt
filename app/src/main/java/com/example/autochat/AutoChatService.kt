@@ -230,15 +230,42 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
         updatePlaybackState(PlaybackState.STATE_STOPPED, "Ready for next question")
     }
     
+    private fun cleanVoiceQuery(query: String): String {
+        // remove "on autochat" suffix that android auto adds to voice commands
+        var cleaned = query.trim()
+        
+        // check for various forms of the suffix (case insensitive)
+        val suffixPatterns = listOf(
+            " on autochat",
+            " on auto chat", 
+            " autochat",
+            " auto chat"
+        )
+        
+        for (pattern in suffixPatterns) {
+            if (cleaned.lowercase().endsWith(pattern.lowercase())) {
+                cleaned = cleaned.substring(0, cleaned.length - pattern.length).trim()
+                break
+            }
+        }
+        
+        return cleaned
+    }
+    
     private fun handleVoiceQuery(query: String) {
         Log.d(TAG, "Handling voice query: $query")
-        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $query")
+        
+        // clean the query by removing "on autochat" suffix
+        val cleanedQuery = cleanVoiceQuery(query)
+        Log.d(TAG, "Cleaned query: $cleanedQuery")
+        
+        updatePlaybackState(PlaybackState.STATE_BUFFERING, "Processing: $cleanedQuery")
         
         // Display the query being processed
-        updateMediaMetadata("Processing Query", "Thinking...", query)
+        updateMediaMetadata("Processing Query", "Thinking...", cleanedQuery)
         
         // Check for special commands
-        val normalizedQuery = query.lowercase().trim()
+        val normalizedQuery = cleanedQuery.lowercase().trim()
         if (normalizedQuery.contains("clear conversation") || 
             normalizedQuery.contains("start new conversation") ||
             normalizedQuery.contains("forget previous questions")) {
@@ -247,7 +274,7 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
         }
         
         // Validate query length and content
-        if (query.isBlank()) {
+        if (cleanedQuery.isBlank()) {
             Log.w(TAG, "Empty query received")
             updateMediaMetadata("Error", "No Query", "I didn't receive a question. Please try asking again.")
             updatePlaybackState(PlaybackState.STATE_ERROR, "No query provided")
@@ -255,8 +282,8 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
             return
         }
         
-        if (query.length > 500) {
-            Log.w(TAG, "Query too long: ${query.length} characters")
+        if (cleanedQuery.length > 500) {
+            Log.w(TAG, "Query too long: ${cleanedQuery.length} characters")
             updateMediaMetadata("Error", "Query Too Long", "Your question is too long. Please try asking a shorter question.")
             updatePlaybackState(PlaybackState.STATE_ERROR, "Query too long")
             voiceManager.speak("Your question is too long. Please try asking a shorter question.")
@@ -266,10 +293,10 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
         // Process the voice query with Perplexity
         serviceScope.launch {
             try {
-                Log.d(TAG, "Starting Perplexity request for query: ${query.take(50)}...")
+                Log.d(TAG, "Starting Perplexity request for query: ${cleanedQuery.take(50)}...")
                 updatePlaybackState(PlaybackState.STATE_BUFFERING, "Connecting to AI...")
                 
-                val response = perplexityClient.sendMessage(query)
+                val response = perplexityClient.sendMessage(cleanedQuery)
                 response.onSuccess { aiResponse ->
                     Log.d(TAG, "Successfully received AI response (${aiResponse.length} chars)")
                     
