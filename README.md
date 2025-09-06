@@ -1,6 +1,6 @@
-# Android Auto AI Voice Assistant
+# AutoChat - Android Auto AI Assistant
 
-A hands-free AI voice assistant for Android Auto that integrates with Perplexity AI. Talk to your AI assistant while driving safely with conversation memory and real-time web search capabilities!
+A hands-free AI assistant for Android Auto that integrates with Perplexity AI. Talk to AutoChat while driving safely with conversation memory and real-time web search capabilities!
 
 ## 🚀 Quick Start
 
@@ -111,26 +111,26 @@ A hands-free AI voice assistant for Android Auto that integrates with Perplexity
    - Launch Android Auto on your car's display
 
 2. **Find the App**:
-   - Look for "AI Voice Assistant" in the media apps section
+   - Look for "AutoChat" in the media apps section
    - Tap to open the app
 
 3. **Start Talking**:
    - Use voice commands to interact with the AI assistant
-   - Say "Search [your question] on Auto Voice Assistant"
+   - Say "Search [your question] on AutoChat"
    - Listen to the AI's response with real-time web search
 
 ### Voice Commands Examples
 
 **Natural Voice Commands:**
-- "Search what's the weather like today on Auto Voice Assistant"
-- "Search tell me a joke on Auto Voice Assistant"
-- "Search explain quantum physics in simple terms on Auto Voice Assistant"
-- "Search what are some good restaurants nearby on Auto Voice Assistant"
-- "Search help me plan my day on Auto Voice Assistant"
+- "Search what's the weather like today on AutoChat"
+- "Search tell me a joke on AutoChat"
+- "Search explain quantum physics in simple terms on AutoChat"
+- "Search what are some good restaurants nearby on AutoChat"
+- "Search help me plan my day on AutoChat"
 
 **Alternative Pattern (also works):**
-- "Play what's the weather like today on Auto Voice Assistant"
-- "Play tell me a joke on Auto Voice Assistant"
+- "Play what's the weather like today on AutoChat"
+- "Play tell me a joke on AutoChat"
 
 ### Conversation Memory Features
 
@@ -154,10 +154,10 @@ A hands-free AI voice assistant for Android Auto that integrates with Perplexity
 ```
 app/
 ├── src/main/
-│   ├── java/com/example/autovoiceassistant/
+│   ├── java/com/example/autochat/
 │   │   ├── MainActivity.kt              # Main app activity
 │   │   ├── SettingsActivity.kt          # Settings configuration
-│   │   ├── AutoVoiceAssistantService.kt # Android Auto service
+│   │   ├── AutoChatService.kt           # Android Auto service
 │   │   ├── VoiceManager.kt              # Voice recognition & TTS
 │   │   └── PerplexityClient.kt          # Perplexity AI API integration
 │   ├── res/
@@ -184,7 +184,7 @@ Manages voice input and output:
 - Text-to-speech for AI responses
 - Audio state management
 
-### AutoVoiceAssistantService.kt
+### AutoChatService.kt
 Android Auto integration:
 - MediaBrowserService for Android Auto compatibility
 - Handles play/pause/stop controls
@@ -202,7 +202,7 @@ Android Auto integration:
 
 - **Local Storage**: API keys stored securely on device
 - **No Data Collection**: No user data sent to third parties
-- **Secure Communication**: HTTPS communication with OpenAI
+- **Secure Communication**: HTTPS communication with Perplexity AI
 - **Backup Exclusion**: Sensitive data excluded from backups
 
 ## Troubleshooting
@@ -244,7 +244,7 @@ Android Auto integration:
 
 To enable debug logging:
 1. Open Android Studio
-2. View logs in Logcat with tag "AutoVoiceAssistant"
+2. View logs in Logcat with tag "AutoChat"
 
 ## Development
 
@@ -288,7 +288,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Disclaimer
 
-- This app requires an OpenAI API key and usage will incur costs based on OpenAI's pricing
+- This app requires a Perplexity API key and usage will incur costs based on Perplexity's pricing
 - Always prioritize safety while driving - pull over if you need to interact with your phone
 - The app is designed for hands-free use but should not replace your attention to the road
 

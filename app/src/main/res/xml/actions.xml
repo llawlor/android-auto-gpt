@@ -2,7 +2,7 @@
 <actions>
     <!-- Main conversation action for "talk to Auto Voice Assistant" -->
     <action intentName="actions.intent.OPEN_APP_FEATURE">
-        <fulfillment urlTemplate="autovoiceassistant://conversation{?query}">
+        <fulfillment urlTemplate="autochat://conversation{?query}">
             <parameter-mapping
                 intentParameter="feature"
                 urlParameter="query" />
@@ -11,7 +11,7 @@
     
     <!-- Direct query action for "ask Auto Voice Assistant about..." -->
     <action intentName="actions.intent.GET_THING">
-        <fulfillment urlTemplate="autovoiceassistant://ask{?query}">
+        <fulfillment urlTemplate="autochat://ask{?query}">
             <parameter-mapping
                 intentParameter="thing.name"
                 urlParameter="query" />
@@ -20,7 +20,7 @@
     
     <!-- Weather-specific action -->
     <action intentName="actions.intent.GET_WEATHER">
-        <fulfillment urlTemplate="autovoiceassistant://weather{?location}">
+        <fulfillment urlTemplate="autochat://weather{?location}">
             <parameter-mapping
                 intentParameter="location"
                 urlParameter="location" />
@@ -29,7 +29,7 @@
     
     <!-- General question action -->
     <action intentName="actions.intent.ASK_QUESTION">
-        <fulfillment urlTemplate="autovoiceassistant://question{?query}">
+        <fulfillment urlTemplate="autochat://question{?query}">
             <parameter-mapping
                 intentParameter="question"
                 urlParameter="query" />
@@ -38,7 +38,7 @@
     
     <!-- Text query action for general queries -->
     <action intentName="actions.intent.TEXT">
-        <fulfillment urlTemplate="autovoiceassistant://text{?query}">
+        <fulfillment urlTemplate="autochat://text{?query}">
             <parameter-mapping
                 intentParameter="text"
                 urlParameter="query" />

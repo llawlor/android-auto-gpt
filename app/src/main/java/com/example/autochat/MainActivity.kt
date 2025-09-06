@@ -1,4 +1,4 @@
-package com.example.autovoiceassistant
+package com.example.autochat
 
 import android.Manifest
 import android.content.Intent
@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.autovoiceassistant.databinding.ActivityMainBinding
+import com.example.autochat.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     
@@ -28,8 +28,8 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupUI() {
-        binding.titleText.text = "AI Voice Assistant"
-        binding.descriptionText.text = "Connect to Android Auto and say 'Search [your question] on Auto Voice Assistant' to get started"
+        binding.titleText.text = "AutoChat"
+        binding.descriptionText.text = "Connect to Android Auto and say 'Search [your question] on AutoChat' to get started"
         
         binding.settingsButton.setOnClickListener {
             // Open settings to configure API key
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         // Start the Android Auto service
-        val serviceIntent = Intent(this, AutoVoiceAssistantService::class.java)
+        val serviceIntent = Intent(this, AutoChatService::class.java)
         startService(serviceIntent)
     }
     
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             Intent.ACTION_VIEW -> {
                 // Handle deep link from Google Assistant
                 data?.let { uri ->
-                    if (uri.scheme == "autovoiceassistant") {
+                    if (uri.scheme == "autochat") {
                         val path = uri.host ?: ""
                         val query = uri.getQueryParameter("query") ?: uri.getQueryParameter("location")
                         
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Processing Assistant query: $query")
         
         // Start the voice service to handle the query
-        val serviceIntent = Intent(this, AutoVoiceAssistantService::class.java)
+        val serviceIntent = Intent(this, AutoChatService::class.java)
         serviceIntent.putExtra("voice_query", query)
         startService(serviceIntent)
         

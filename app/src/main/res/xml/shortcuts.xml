@@ -9,8 +9,8 @@
         android:shortcutLongLabel="@string/ask_assistant_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.example.autovoiceassistant"
-            android:targetClass="com.example.autovoiceassistant.MainActivity">
+            android:targetPackage="com.example.autochat"
+            android:targetClass="com.example.autochat.MainActivity">
             <extra android:name="query" android:value="" />
         </intent>
         <categories android:name="android.shortcut.conversation" />
@@ -25,8 +25,8 @@
         android:shortcutLongLabel="@string/ask_question_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.example.autovoiceassistant"
-            android:targetClass="com.example.autovoiceassistant.MainActivity">
+            android:targetPackage="com.example.autochat"
+            android:targetClass="com.example.autochat.MainActivity">
             <extra android:name="query" android:value="" />
             <extra android:name="query_type" android:value="question" />
         </intent>

@@ -1,4 +1,4 @@
-package com.example.autovoiceassistant
+package com.example.autochat
 
 import android.util.Log
 import com.google.gson.Gson

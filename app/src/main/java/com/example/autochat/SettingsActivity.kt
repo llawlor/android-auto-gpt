@@ -1,9 +1,9 @@
-package com.example.autovoiceassistant
+package com.example.autochat
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.autovoiceassistant.databinding.ActivitySettingsBinding
+import com.example.autochat.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     

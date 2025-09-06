@@ -1,4 +1,4 @@
-package com.example.autovoiceassistant
+package com.example.autochat
 
 import android.content.Context
 import android.content.Intent

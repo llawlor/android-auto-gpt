@@ -1,4 +1,4 @@
-package com.example.autovoiceassistant
+package com.example.autochat
 
 import android.content.Intent
 import android.media.MediaDescription
@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.delay
 
-class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallback {
+class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
     
     private lateinit var mediaSession: MediaSession
     private lateinit var voiceManager: VoiceManager
@@ -21,7 +21,7 @@ class AutoVoiceAssistantService : MediaBrowserService(), VoiceManager.VoiceCallb
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     
     companion object {
-        private const val TAG = "AutoVoiceAssistant"
+        private const val TAG = "AutoChatService"
         private const val MEDIA_ROOT_ID = "voice_assistant_root"
         private const val VOICE_COMMAND_ID = "voice_command"
     }
