@@ -38,9 +38,9 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
                 updateMediaMetadata(
                     "Voice Commands", 
                     "How to use", 
-                    "Use your voice button and say: 'Search [your question] on AutoChat'. For example: 'Search what's the weather like on AutoChat'"
+                    "Use your voice button and say: 'Play [your question] on AutoChat'. For example: 'Play what's the weather like on AutoChat'"
                 )
-                voiceManager.speak("Hello! I'm AutoChat. Use your voice button and say: Search what's the weather like on AutoChat. You can ask me anything using the Search pattern!")
+                voiceManager.speak("Hello! I'm AutoChat. Use your voice button and say: Play what's the weather like on AutoChat. You can ask me anything using the Play pattern!")
                 updatePlaybackState(PlaybackState.STATE_PAUSED)
             }
             
@@ -64,9 +64,9 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
                     updateMediaMetadata(
                         "No Query Received", 
                         "Try again", 
-                        "Please say 'Search [your question] on AutoChat' to get started."
+                        "Please say 'Play [your question] on AutoChat' to get started."
                     )
-                    voiceManager.speak("I didn't receive your question. Please say 'Search your question on AutoChat' to get started.")
+                    voiceManager.speak("I didn't receive your question. Please say 'Play your question on AutoChat' to get started.")
                 } else {
                     handleVoiceQuery(query)
                 }
@@ -93,7 +93,7 @@ class AutoChatService : MediaBrowserService(), VoiceManager.VoiceCallback {
                 updateMediaMetadata(
                     "AutoChat Ready", 
                     "Press play to start", 
-                    "Say 'Search [your question] on AutoChat' to get started. You can ask me anything!"
+                    "Say 'Play [your question] on AutoChat' to get started. You can ask me anything!"
                 )
                 voiceManager.speak("AutoChat ready. Press play to start talking.")
             } else {

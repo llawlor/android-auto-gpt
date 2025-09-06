@@ -48,10 +48,10 @@ AutoChat now uses Perplexity AI instead of OpenAI, providing enhanced web search
 
 ## Example Voice Commands
 
-- "Search what's the weather like on AutoChat"
-- "Search latest news about technology on AutoChat"
-- "Search how to cook pasta on AutoChat"
-- "Search what time does the store close on AutoChat"
+- "Play what's the weather like on AutoChat"
+- "Play latest news about technology on AutoChat"
+- "Play how to cook pasta on AutoChat"
+- "Play what time does the store close on AutoChat"
 
 ## Troubleshooting
 

@@ -116,21 +116,21 @@ A hands-free AI assistant for Android Auto that integrates with Perplexity AI. T
 
 3. **Start Talking**:
    - Use voice commands to interact with the AI assistant
-   - Say "Search [your question] on AutoChat"
+   - Say "Play [your question] on AutoChat"
    - Listen to the AI's response with real-time web search
 
 ### Voice Commands Examples
 
 **Natural Voice Commands:**
-- "Search what's the weather like today on AutoChat"
-- "Search tell me a joke on AutoChat"
-- "Search explain quantum physics in simple terms on AutoChat"
-- "Search what are some good restaurants nearby on AutoChat"
-- "Search help me plan my day on AutoChat"
-
-**Alternative Pattern (also works):**
 - "Play what's the weather like today on AutoChat"
 - "Play tell me a joke on AutoChat"
+- "Play explain quantum physics in simple terms on AutoChat"
+- "Play what are some good restaurants nearby on AutoChat"
+- "Play help me plan my day on AutoChat"
+
+**Alternative Pattern (also works):**
+- "Search what's the weather like today on AutoChat"
+- "Search tell me a joke on AutoChat"
 
 ### Conversation Memory Features
 

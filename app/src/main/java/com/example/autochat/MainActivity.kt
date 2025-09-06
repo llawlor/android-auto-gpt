@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     
     private fun setupUI() {
         binding.titleText.text = "AutoChat"
-        binding.descriptionText.text = "Connect to Android Auto and say 'Search [your question] on AutoChat' to get started"
+        binding.descriptionText.text = "Connect to Android Auto and say 'Play [your question] on AutoChat' to get started"
         
         binding.settingsButton.setOnClickListener {
             // Open settings to configure API key
