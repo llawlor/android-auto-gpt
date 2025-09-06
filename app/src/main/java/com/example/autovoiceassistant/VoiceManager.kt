@@ -338,6 +338,9 @@ class VoiceManager(private val context: Context) {
     private fun cleanTextForSpeech(text: String): String {
         var cleaned = text
         
+        // remove asterisks (markdown emphasis)
+        cleaned = cleaned.replace("*", "")
+        
         // Remove HTML tags
         cleaned = cleaned.replace(Regex("<[^>]*>"), "")
         
